@@ -18,5 +18,8 @@ NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
 
 DICCIONARIO_TIPO_VARIABLE = {
     'IMACEC': 'Nacional',
-    'Precio': 'Nacional'
+    'Precio': 'Nacional',
+    'Poblacion': 'Comuna',
+    'Vivienda': 'Comuna',
+    'Produccion': 'Empresa'
 }

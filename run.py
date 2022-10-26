@@ -1,6 +1,7 @@
 import os
 import logging
 
+from src.CompiladorEscenarios import CompiladorEscenarios
 from src.LectorModelosEconometricos import LectorModelosEconometricos
 
 logger = logging.getLogger('simple_example')
@@ -22,9 +23,13 @@ logger.addHandler(ch)
 
 def main():
     logger.info('Iniciando ejecucion de AppDemandaElectrica v0.1')
-    ruta_modelo = os.sep.join(['input', 'Modelos.xlsx'])
-    procesador_modelos = LectorModelosEconometricos(ruta_modelo)
-    df_coeficientes = procesador_modelos.armar_df_proyecciones()
+    ruta_archivo_modelos = os.sep.join(['input', 'Modelos.xlsx'])
+    ruta_archivo_diccionarios = os.sep.join(['input', 'Diccionarios.xlsx'])
+    ruta_archivo_escenarios = os.sep.join(['input', 'Escenarios'])
+    ruta_guardado = os.sep.join(['output'])
+    compilador = CompiladorEscenarios(ruta_archivo_modelos, ruta_archivo_escenarios, ruta_archivo_diccionarios)
+    compilador.agregar_variables()
+    compilador.guardar_df(ruta_guardado)
     logger.info('Ejecucion finalizada')
 
 

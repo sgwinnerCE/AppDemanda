@@ -42,14 +42,14 @@ def test_armar_df_temporal(modelos_test):
 def test_resolucion_modelo_1(modelos_test):
     obj_coef = 'Nacional'
     obj_ef = 'Barra'
-    test_coef, test_ef = modelos_test._obtener_resolucion_modelo(1, 'ReguladosLD')
+    test_coef, test_ef = modelos_test.obtener_resolucion_modelo(1, 'ReguladosLD')
     assert obj_coef == test_coef and test_ef == obj_ef
 
 
 def test_resolucion_modelo_3(modelos_test):
     obj_coef = 'Region'
     obj_ef = 'Barra'
-    test_coef, test_ef = modelos_test._obtener_resolucion_modelo(3, 'ReguladosLD')
+    test_coef, test_ef = modelos_test.obtener_resolucion_modelo(3, 'ReguladosLD')
     assert obj_coef == test_coef and test_ef == obj_ef
 
 

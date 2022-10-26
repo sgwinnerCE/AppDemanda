@@ -42,7 +42,7 @@ class LectorModelosEconometricos:
         df_temporal = self._armar_df_temporal()
         for subsector, modelo in self.modelos_escogidos.items():
             logger.info(f'Procesando coeficientes y efectos fijos del subsector: {subsector} modelo numero: {modelo}')
-            resolucion_coef, resolucion_ef = self._obtener_resolucion_modelo(modelo, subsector)
+            resolucion_coef, resolucion_ef = self.obtener_resolucion_modelo(modelo, subsector)
             df_efectos_fijos = self._obtener_efectos_fijos(modelo, subsector, resolucion_ef)
             df_proyeccion_modelo = df_temporal.join(df_efectos_fijos, how='cross')
             dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
@@ -87,7 +87,7 @@ class LectorModelosEconometricos:
         lista_meses = list(range(1, self.meses + 1))
         return lista_meses
 
-    def _obtener_resolucion_modelo(self, modelo: int, subsector: str) -> tuple[str, str]:
+    def obtener_resolucion_modelo(self, modelo: int, subsector: str) -> tuple[str, str]:
         """
         Metodo que obtiene la resolucion de los efectos fijos y variables para cada modelo y subsector
         :param modelo: indice numerico del modelo a utilizar
@@ -100,6 +100,7 @@ class LectorModelosEconometricos:
         resolucion_ef = self.detalle_modelos.loc[(self.detalle_modelos['Subsector'] == subsector) &
                                                  (self.detalle_modelos[
                                                       'Indice_Modelo'] == modelo), 'Resolucion_EF'].item()
+        #logger.debug(f'Modelo {modelo} {subsector}: Res_coef {resolucion_coef} y Res_EF {resolucion_ef}')
         return resolucion_coef, resolucion_ef
 
     def _obtener_efectos_fijos(self, modelo: int, subsector: str, resolucion_ef: str) -> pd.DataFrame:
