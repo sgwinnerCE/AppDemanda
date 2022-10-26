@@ -67,6 +67,16 @@ def test_coeficientes_modelo_2(modelos_test):
     df_obj = {'Produccion': 0.6}
     assert df_obj == modelos_test._obtener_coeficientes(1, 'Cobre')
 
+
+def test_coeficientes_cuadrado_modelo_1(modelos_test):
+    df_obj = {'IMACEC': 0.1}
+    assert df_obj == modelos_test._obtener_coeficientes_cuadrado(1, 'ReguladosLD')
+
+
+def test_coeficientes_cuadrado_modelo_2(modelos_test):
+    with pytest.raises(ValueError):
+        modelos_test._obtener_coeficientes_cuadrado(1, 'Cobre')
+
 # def test_armado_proyeccion_1(modelos_test):
 #     dataframe = pd.read_csv(os.sep.join(['test', 'test_inputs', 'output_reguladosLD.csv']))
 #     dataframe_leido = modelos_test.armar_df_proyecciones()[0]
