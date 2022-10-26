@@ -1,8 +1,11 @@
+import logging
 import os
 
 import pandas as pd
 
 from configuracion import *
+
+logger = logging.getLogger('simple_example')
 
 
 class LectorModelosEconometricos:
@@ -38,6 +41,7 @@ class LectorModelosEconometricos:
         diccionario_datos_modelos = dict()
         df_temporal = self._armar_df_temporal()
         for subsector, modelo in self.modelos_escogidos.items():
+            logger.info(f'Procesando coeficientes y efectos fijos del subsector: {subsector} modelo numero: {modelo}')
             resolucion_coef, resolucion_ef = self._obtener_resolucion_modelo(modelo, subsector)
             df_efectos_fijos = self._obtener_efectos_fijos(modelo, subsector, resolucion_ef)
             df_proyeccion_modelo = df_temporal.join(df_efectos_fijos, how='cross')
@@ -49,8 +53,9 @@ class LectorModelosEconometricos:
                 for variable, coeficiente in dict_coeficientes_cuadrado.items():
                     df_proyeccion_modelo[f'Coef2_{variable}'] = coeficiente
             except ValueError:
-                print(f'WARNING: Subsector {subsector} no tiene datos de coeficientes con variables al cuadrado ('
-                      f'opcional)')
+                logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de coeficientes con '
+                               f'variables al cuadrado ( '
+                               f'opcional)')
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos
 
