@@ -44,6 +44,13 @@ class LectorModelosEconometricos:
             dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
             for variable, coeficiente in dict_coeficientes.items():
                 df_proyeccion_modelo[f'Coef_{variable}'] = coeficiente
+            try:
+                dict_coeficientes_cuadrado = self._obtener_coeficientes_cuadrado(modelo, subsector)
+                for variable, coeficiente in dict_coeficientes_cuadrado.items():
+                    df_proyeccion_modelo[f'Coef2_{variable}'] = coeficiente
+            except ValueError:
+                print(f'WARNING: Subsector {subsector} no tiene datos de coeficientes con variables al cuadrado ('
+                      f'opcional)')
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos
 
@@ -117,6 +124,18 @@ class LectorModelosEconometricos:
         :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
         """
         nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES}_{subsector}_{modelo}'
+        df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
+        dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
+        return dict_coeficientes
+
+    def _obtener_coeficientes_cuadrado(self, modelo: int, subsector: str) -> dict[float]:
+        """
+        Metodo que extrae los coeficientes de las variables explicativas al cuadrado en un diccionario
+        :param modelo: indice de modelo seleccionado
+        :param subsector: subsector economico
+        :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
+        """
+        nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES_CUADRADO}_{subsector}_{modelo}'
         df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
         dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
         return dict_coeficientes
