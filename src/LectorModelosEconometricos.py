@@ -27,6 +27,7 @@ class LectorModelosEconometricos:
         for subsector, modelo in self.modelos_escogidos.items():
             resolucion_coef, resolucion_ef = self._obtener_resolucion_modelo(modelo, subsector)
             df_efectos_fijos = self._obtener_efectos_fijos(modelo, subsector, resolucion_ef)
+            df_coeficientes = self._obtener_coeficientes(modelo, subsector, resolucion_ef)
             df_proyeccion_modelo = df_temporal.join(df_efectos_fijos, how='cross')
             print(df_temporal)
         pass
@@ -66,6 +67,12 @@ class LectorModelosEconometricos:
         df_efectos_fijos['Efecto_Fijo'] = df_efectos_fijos['Efecto_Fijo'] + constante
         df_efectos_fijos.reset_index(drop=True, inplace=True)
         return df_efectos_fijos
+
+    def _obtener_coeficientes(self, modelo, subsector):
+        nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES}_{subsector}_{modelo}'
+        df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
+        dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
+        return dict_coeficientes
 
 
 def main():

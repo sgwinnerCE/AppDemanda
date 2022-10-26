@@ -57,6 +57,16 @@ def test_efecto_fijo_modelo_1(modelos_test):
     df_obj = pd.DataFrame(data={'Barra': ['Barra1', 'Barra2'], 'Efecto_Fijo': [4.5, 6]})
     assert assert_frame_equal(df_obj, modelos_test._obtener_efectos_fijos(1, 'ReguladosLD', 'Barra')) is None
 
+
+def test_coeficientes_modelo_1(modelos_test):
+    df_obj = {'IMACEC': 0.65, 'Precio': -0.4, 'Poblacion': 0.21}
+    assert df_obj == modelos_test._obtener_coeficientes(1, 'ReguladosLD')
+
+
+def test_coeficientes_modelo_2(modelos_test):
+    df_obj = {'Produccion': 0.6}
+    assert df_obj == modelos_test._obtener_coeficientes(1, 'Cobre')
+
 # def test_armado_proyeccion_1(modelos_test):
 #     dataframe = pd.read_csv(os.sep.join(['test', 'test_inputs', 'output_reguladosLD.csv']))
 #     dataframe_leido = modelos_test.armar_df_proyecciones()[0]
