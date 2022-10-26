@@ -6,6 +6,10 @@ from configuracion import *
 
 
 class LectorModelosEconometricos:
+    """
+    Clase que se encarga de leer el excel con los datos de los modelos econometricos y construye un dataframe para cada
+    subsector que sera utilizado para realizar los calculos.
+    """
 
     def __init__(self, direccion_archivo: str) -> None:
         self.archivo_excel = pd.ExcelFile(direccion_archivo)
@@ -20,9 +24,17 @@ class LectorModelosEconometricos:
         self.meses = MESES
 
     def entregar_modelos_escogidos(self) -> dict:
+        """
+        Devuelve los modelos escogidos en un diccionario
+        :return: Diccionario[Subsector] -> numero escogido
+        """
         return self.modelos_escogidos
 
     def armar_df_proyecciones(self) -> dict[pd.DataFrame]:
+        """
+        Metodo para armar el dataframe que sera usado como base para realizar las proyecciones
+        :return: entrega un diccionario con un dataframe para cada subsector economico
+        """
         diccionario_datos_modelos = dict()
         df_temporal = self._armar_df_temporal()
         for subsector, modelo in self.modelos_escogidos.items():
@@ -36,6 +48,10 @@ class LectorModelosEconometricos:
         return diccionario_datos_modelos
 
     def _armar_df_temporal(self) -> pd.DataFrame:
+        """
+        Metodo para construir un dataframe con resolucion mensual desde el año inicial al año final
+        :return: dataframe con columnas [Año,Mes]
+        """
         lista_agnos = self._armar_lista_agnos_proyeccion()
         df_agnos = pd.DataFrame(data={'Año': lista_agnos})
         lista_meses = self._armar_lista_meses_proyeccion()
@@ -43,15 +59,29 @@ class LectorModelosEconometricos:
         df_temporal = df_agnos.join(df_meses, how='cross')
         return df_temporal
 
-    def _armar_lista_agnos_proyeccion(self):
+    def _armar_lista_agnos_proyeccion(self) -> list[int]:
+        """
+        Metodo para construir una lista con los años de la proyeccion
+        :return: lista de años
+        """
         lista_agnos = list(range(self.agno_i, self.agno_f + 1))
         return lista_agnos
 
-    def _armar_lista_meses_proyeccion(self):
+    def _armar_lista_meses_proyeccion(self) -> list[int]:
+        """
+        Metodo para construir la lista de meses
+        :return: lista de meses
+        """
         lista_meses = list(range(1, self.meses + 1))
         return lista_meses
 
-    def _obtener_resolucion_modelo(self, modelo, subsector):
+    def _obtener_resolucion_modelo(self, modelo: int, subsector: str) -> tuple[str, str]:
+        """
+        Metodo que obtiene la resolucion de los efectos fijos y variables para cada modelo y subsector
+        :param modelo: indice numerico del modelo a utilizar
+        :param subsector: subsector economico
+        :return: dos strings indicando las resoluciones relevantes del modelo
+        """
         resolucion_coef = self.detalle_modelos.loc[(self.detalle_modelos['Subsector'] == subsector) &
                                                    (self.detalle_modelos[
                                                         'Indice_Modelo'] == modelo), 'Resolucion_Coef'].item()
@@ -60,7 +90,15 @@ class LectorModelosEconometricos:
                                                       'Indice_Modelo'] == modelo), 'Resolucion_EF'].item()
         return resolucion_coef, resolucion_ef
 
-    def _obtener_efectos_fijos(self, modelo, subsector, resolucion_ef):
+    def _obtener_efectos_fijos(self, modelo: int, subsector: str, resolucion_ef: str) -> pd.DataFrame:
+        """
+        Metodo que lee y procesa los efectos fijos y constante. Para ello asigna el efecto fijo como la suma del efecto
+        fijo de cada elemento y lo suma a la constante leida tambien desde los datos de entrada.
+        :param modelo: indice de modelo a utilizar
+        :param subsector: subsector economico
+        :param resolucion_ef: resolucion del efecto fijo. Ej: Barra, region, empresa, etc.
+        :return: dataframe con cada elemento en cada fila con el efecto fijo + constante como valor asociado
+        """
         nombre_hoja = f'{PREFIJO_EFECTOS_FIJOS}_{subsector}_{modelo}'
         df_efectos_fijos = pd.read_excel(self.archivo_excel,
                                          sheet_name=nombre_hoja)
@@ -71,7 +109,13 @@ class LectorModelosEconometricos:
         df_efectos_fijos.reset_index(drop=True, inplace=True)
         return df_efectos_fijos
 
-    def _obtener_coeficientes(self, modelo, subsector):
+    def _obtener_coeficientes(self, modelo: int, subsector: str) -> dict[float]:
+        """
+        Metodo que extrae los coeficientes de las variables explicativas en un diccionario
+        :param modelo: indice de modelo seleccionado
+        :param subsector: subsector economico
+        :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
+        """
         nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES}_{subsector}_{modelo}'
         df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
         dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
