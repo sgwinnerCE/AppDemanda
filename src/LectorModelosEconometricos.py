@@ -22,15 +22,18 @@ class LectorModelosEconometricos:
     def entregar_modelos_escogidos(self) -> dict:
         return self.modelos_escogidos
 
-    def armar_df_proyecciones(self):
+    def armar_df_proyecciones(self) -> dict[pd.DataFrame]:
+        diccionario_datos_modelos = dict()
         df_temporal = self._armar_df_temporal()
         for subsector, modelo in self.modelos_escogidos.items():
             resolucion_coef, resolucion_ef = self._obtener_resolucion_modelo(modelo, subsector)
             df_efectos_fijos = self._obtener_efectos_fijos(modelo, subsector, resolucion_ef)
-            df_coeficientes = self._obtener_coeficientes(modelo, subsector, resolucion_ef)
             df_proyeccion_modelo = df_temporal.join(df_efectos_fijos, how='cross')
-            print(df_temporal)
-        pass
+            dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
+            for variable, coeficiente in dict_coeficientes.items():
+                df_proyeccion_modelo[f'Coef_{variable}'] = coeficiente
+            diccionario_datos_modelos[subsector] = df_proyeccion_modelo
+        return diccionario_datos_modelos
 
     def _armar_df_temporal(self) -> pd.DataFrame:
         lista_agnos = self._armar_lista_agnos_proyeccion()
