@@ -50,7 +50,10 @@ class CompiladorEscenarios:
                         if resolucion_variable != resolucion_modelo:
                             diccionario = self.leer_diccionario(resolucion_modelo, resolucion_variable)
                             self.chequear_existencia_diccionario(diccionario, df_subsector, resolucion_modelo, resolucion_variable)
-                            df_subsector = pd.merge(df_subsector, diccionario, on=[resolucion_modelo])
+                            if resolucion_variable not in df_subsector.columns:
+                                df_subsector = pd.merge(df_subsector, diccionario, on=[resolucion_modelo])
+                            else:
+                                df_subsector = pd.merge(df_subsector, diccionario, on=[resolucion_modelo, resolucion_variable])
                         if 'Escenario' not in df_subsector.columns:
                             df_subsector = pd.merge(df_subsector, df_variable, on=['Año', 'Mes', resolucion_variable])
                         else:
@@ -58,7 +61,11 @@ class CompiladorEscenarios:
                                                     on=['Año', 'Mes', 'Escenario', resolucion_variable])
             self.df_compilados[subsector] = df_subsector
 
-    def chequear_existencia_diccionario(self, diccionario, df_subsector, resolucion_modelo, resolucion_variable):
+    def entregar_df_compilados(self):
+        return self.df_compilados
+
+    @staticmethod
+    def chequear_existencia_diccionario(diccionario, df_subsector, resolucion_modelo, resolucion_variable):
         lista_subsector = list(df_subsector[resolucion_modelo].unique())
         lista_diccionario = list(diccionario[resolucion_modelo].unique())
         for elemento in lista_subsector:
@@ -66,7 +73,6 @@ class CompiladorEscenarios:
                 logger.warning(f'No se encuentra {resolucion_modelo} {elemento} en diccionario {resolucion_modelo}_{resolucion_variable}')
 
     def guardar_df(self, ruta_guardado):
-
         for subsector, df_subsector in self.df_compilados.items():
             archivo_guardado = os.sep.join([ruta_guardado, f'{subsector}_parametros.csv'])
             df_subsector.to_csv(archivo_guardado, encoding='latin-1', index=False)

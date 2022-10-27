@@ -23,3 +23,6 @@ DICCIONARIO_TIPO_VARIABLE = {
     'Vivienda': 'Comuna',
     'Produccion': 'Empresa'
 }
+
+# Nombre Datos
+ENERGIA = 'Demanda'
