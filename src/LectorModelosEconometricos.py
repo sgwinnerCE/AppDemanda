@@ -141,6 +141,7 @@ class LectorModelosEconometricos:
             df_filtro[subsector] = df_filtro[subsector].astype(int)
             lista_filtro = list(df_filtro.loc[df_filtro[subsector] == 0, resolucion_ef].unique())
             df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos[resolucion_ef].isin(lista_filtro)].index, inplace=True)
+            logger.info(f'Filtrando {len(lista_filtro)} {resolucion_ef} para proyectar {subsector}')
         except ValueError:
             logger.warning(f'No se encuentra hoja {PREFIJO_FILTRO}_{resolucion_ef}, no se filtraran estos datos para el'
                            f' subsector {subsector}')
