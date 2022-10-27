@@ -9,6 +9,9 @@ logger = logging.getLogger('simple_example')
 
 
 class ProcesadorVariables:
+    """
+    Clase que lee y procesa las variables exogenas a usar por los modelos econometricos
+    """
 
     def __init__(self, direccion_archivos: str) -> None:
         self.direccion_archivos = direccion_archivos
@@ -16,12 +19,21 @@ class ProcesadorVariables:
         self.TIPO_VARIABLE = DICCIONARIO_TIPO_VARIABLE
 
     def obtener_lista_escenarios(self) -> list[str]:
+        """
+        Funcion que lee los nombres de los escenarios para realizar las proyecciones
+        :return: Lista de escenarios
+        """
         lista_escenarios = os.listdir(self.direccion_archivos)
         lista_escenarios = [archivo.split('.')[0] for archivo in lista_escenarios if archivo.endswith('.xlsx') and not
         archivo.startswith('~')]
         return lista_escenarios
 
     def procesar_variable(self, nombre_variable: str) -> pd.DataFrame:
+        """
+        Funcion que procesa la variable a utilizar
+        :param nombre_variable: nombre de la variable
+        :return: dataframe con la proyeccion de la variable en formato adecuado
+        """
         df_variable = pd.DataFrame()
         resolucion_variable = self.TIPO_VARIABLE[nombre_variable]
         if resolucion_variable == 'Nacional':

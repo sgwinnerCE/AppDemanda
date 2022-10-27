@@ -25,6 +25,8 @@ class LectorModelosEconometricos:
         self.agno_i = AGNO_INICIAL
         self.agno_f = AGNO_FINAL
         self.meses = MESES
+        logger.info(f'Leyendo datos de modelos econometricos en {direccion_archivo}')
+        logger.info(f'Preparando datos para proyectar entre {self.agno_i} y {self.agno_f}')
 
     def entregar_modelos_escogidos(self) -> dict:
         """
