@@ -64,7 +64,7 @@ class CalculadoraEnergia:
                 """
 
                 df_subsector[ENERGIA] = df_subsector[ENERGIA] + df_subsector[
-                    f'Coef2_{variable}'] * np.log(df_subsector[variable]) * np.log(df_subsector[variable])
+                    f'Coef2_{variable}'] * np.log(df_subsector[variable])**2
             # Suma Efecto Fijo
             """
             Efectos fijos ya tienen sumada la constante global
