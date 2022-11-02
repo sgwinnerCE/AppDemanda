@@ -14,6 +14,7 @@ Aplicacion desarrollada en Python 3.10
 ## Caracteristicas
 
 - Proyecciones para modelos con variables y efectos fijos unicos a nivel nacional.
+- Asignacion de proyecciones en barras de retiro
 
 ## TO DOs
 
