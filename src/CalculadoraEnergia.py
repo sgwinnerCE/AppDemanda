@@ -6,6 +6,8 @@ import pandas as pd
 from configuracion import *
 import logging
 
+from src.LectorModelosEconometricos import LectorModelosEconometricos
+
 logger = logging.getLogger('simple_example')
 
 
@@ -14,8 +16,11 @@ class CalculadoraEnergia:
     Clase procesa los dataframes compilados y calcula la proyeccion de energia para cada subsector
     """
 
-    def __init__(self):
+    def __init__(self, ruta_archivo_modelos=str):
+        self.ruta_modelos = ruta_archivo_modelos
         self.df_proyecciones = None
+        self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos)
+        self.modelos_escogidos = self.procesador_modelos.entregar_modelos_escogidos()
 
     def leer_df_compilados(self, df_compilados: dict) -> None:
         """
@@ -64,7 +69,7 @@ class CalculadoraEnergia:
                 """
 
                 df_subsector[ENERGIA] = df_subsector[ENERGIA] + df_subsector[
-                    f'Coef2_{variable}'] * np.log(df_subsector[variable]) * np.log(df_subsector[variable])
+                    f'Coef2_{variable}'] * np.log(df_subsector[variable]) ** 2
             # Suma Efecto Fijo
             """
             Efectos fijos ya tienen sumada la constante global
@@ -90,8 +95,29 @@ class CalculadoraEnergia:
             self.df_proyecciones[subsector] = pd.concat([df_historico, df_subsector], ignore_index=True)
             self.df_proyecciones[subsector].dropna(axis=1, inplace=True)
 
+    def desagrupar_retiros(self):
+        """
+        Metodo que desagrupa demanda agrupada en la proyeccion. Por ejemplo para pasar de Empresa/Faena a barras de
+        retiro
+        """
+        for subsector, df_subsector in self.df_proyecciones.items():
+            _, resolucion_modelo = self.procesador_modelos.obtener_resolucion_modelo(
+                modelo=self.modelos_escogidos[subsector], subsector=subsector)
+
+            if resolucion_modelo == 'Barra':
+                continue
+            else:
+                logger.info(f'Desagrupando retiros del subsector {subsector} de {resolucion_modelo} a barras.')
+                df_desagrupacion = pd.read_excel(self.ruta_modelos, sheet_name=f'{PREFIJO_DESAGRUPACION}_{resolucion_modelo}',
+                                                 usecols=[resolucion_modelo, 'Barra', subsector])
+                self.df_proyecciones[subsector] = self.df_proyecciones[subsector].merge(df_desagrupacion, on=[resolucion_modelo])
+                self.df_proyecciones[subsector]['Demanda'] = self.df_proyecciones[subsector]['Demanda']*self.df_proyecciones[subsector][subsector]
+                self.df_proyecciones[subsector].drop(labels=[subsector], axis=1, inplace=True)
+
+
     def obtener_proyeccion_completa(self, direccion_datos_historicos):
         self.calcular_proyeccion_energia()
+        self.desagrupar_retiros()
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
     def guardar_proyecciones(self, ruta_guardado):
