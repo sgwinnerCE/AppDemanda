@@ -47,6 +47,15 @@ class LectorModelosEconometricos:
             resolucion_coef, resolucion_ef = self.obtener_resolucion_modelo(modelo, subsector)
             df_efectos_fijos = self._obtener_efectos_fijos(modelo, subsector, resolucion_ef)
             df_proyeccion_modelo = df_temporal.join(df_efectos_fijos, how='cross')
+            try:
+                df_efectos_fijos_mes = self._obtener_efectos_fijos_mes(modelo, subsector)
+                df_proyeccion_modelo = df_proyeccion_modelo.merge(df_efectos_fijos_mes, on=['Mes'])
+                df_proyeccion_modelo['Efecto_Fijo'] = df_proyeccion_modelo['Efecto_Fijo'] + df_proyeccion_modelo['Efecto_Fijo_Mes']
+                df_proyeccion_modelo.drop(labels=['Efecto_Fijo_Mes'], axis=1, inplace=True)
+            except ValueError:
+                logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene efectos fijos mensuales '
+                               f'(opcional)')
+
             dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
             for variable, coeficiente in dict_coeficientes.items():
                 df_proyeccion_modelo[f'Coef_{variable}'] = coeficiente
@@ -56,7 +65,7 @@ class LectorModelosEconometricos:
                     df_proyeccion_modelo[f'Coef2_{variable}'] = coeficiente
             except ValueError:
                 logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de coeficientes con '
-                               f'variables al cuadrado ( '
+                               f'variables al cuadrado ('
                                f'opcional)')
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos
@@ -102,7 +111,7 @@ class LectorModelosEconometricos:
         resolucion_ef = self.detalle_modelos.loc[(self.detalle_modelos['Subsector'] == subsector) &
                                                  (self.detalle_modelos[
                                                       'Indice_Modelo'] == modelo), 'Resolucion_EF'].item()
-        #logger.debug(f'Modelo {modelo} {subsector}: Res_coef {resolucion_coef} y Res_EF {resolucion_ef}')
+        # logger.debug(f'Modelo {modelo} {subsector}: Res_coef {resolucion_coef} y Res_EF {resolucion_ef}')
         return resolucion_coef, resolucion_ef
 
     def _obtener_efectos_fijos(self, modelo: int, subsector: str, resolucion_ef: str) -> pd.DataFrame:
@@ -127,6 +136,12 @@ class LectorModelosEconometricos:
         df_efectos_fijos.reset_index(drop=True, inplace=True)
         return df_efectos_fijos
 
+    def _obtener_efectos_fijos_mes(self, modelo: int, subsector: str) -> pd.DataFrame:
+        nombre_hoja = f'{PREFIJO_EFECTOS_FIJOS_MES}_{subsector}_{modelo}'
+        df_efectos_fijos_mes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
+        df_efectos_fijos_mes.rename(columns={'Indice': 'Mes', 'Total': 'Efecto_Fijo_Mes'}, inplace=True)
+        return df_efectos_fijos_mes
+
     def _filtrar_elementos(self, df_efectos_fijos, resolucion_ef, subsector):
         """
         Metodo que filtra elementos de la lista para proyectar. Va a buscar esta lista en hoja en el excel modelo
@@ -140,7 +155,8 @@ class LectorModelosEconometricos:
             df_filtro = pd.read_excel(self.archivo_excel, sheet_name=nombre_filtro, usecols=[resolucion_ef, subsector])
             df_filtro[subsector] = df_filtro[subsector].astype(int)
             lista_filtro = list(df_filtro.loc[df_filtro[subsector] == 0, resolucion_ef].unique())
-            df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos[resolucion_ef].isin(lista_filtro)].index, inplace=True)
+            df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos[resolucion_ef].isin(lista_filtro)].index,
+                                  inplace=True)
             logger.info(f'Filtrando {len(lista_filtro)} {resolucion_ef} para proyectar {subsector}')
         except ValueError:
             logger.warning(f'No se encuentra hoja {PREFIJO_FILTRO}_{resolucion_ef}, no se filtraran estos datos para el'

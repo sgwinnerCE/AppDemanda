@@ -11,6 +11,7 @@ PREFIJO_EFECTOS_FIJOS = 'EF'
 PREFIJO_COEFICIENTES_VARIABLES = 'Var'
 PREFIJO_COEFICIENTES_VARIABLES_CUADRADO = 'Var2'
 PREFIJO_FILTRO = 'Filtro'
+PREFIJO_EFECTOS_FIJOS_MES = 'EFMes'
 
 # Deficion Nombres en Hojas Modelos
 NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
@@ -22,7 +23,8 @@ DICCIONARIO_TIPO_VARIABLE = {
     'Precio': 'Nacional',
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
-    'Produccion': 'Empresa'
+    'ProduccionCU': 'Empresa',
+    'OCED6': 'Nacional'
 }
 
 # Nombre Datos
