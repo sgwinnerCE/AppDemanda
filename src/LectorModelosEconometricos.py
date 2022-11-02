@@ -137,6 +137,12 @@ class LectorModelosEconometricos:
         return df_efectos_fijos
 
     def _obtener_efectos_fijos_mes(self, modelo: int, subsector: str) -> pd.DataFrame:
+        """
+        Metodo que obtiene los efectos fijos mensuales si los hay.
+        :param modelo: modelos escogido
+        :param subsector: subsector economico
+        :return: dataframe de efectos fijos
+        """
         nombre_hoja = f'{PREFIJO_EFECTOS_FIJOS_MES}_{subsector}_{modelo}'
         df_efectos_fijos_mes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
         df_efectos_fijos_mes.rename(columns={'Indice': 'Mes', 'Total': 'Efecto_Fijo_Mes'}, inplace=True)

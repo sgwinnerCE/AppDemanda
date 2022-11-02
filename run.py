@@ -35,7 +35,7 @@ def main():
     compilador = CompiladorEscenarios(ruta_archivo_modelos, ruta_archivo_escenarios, ruta_archivo_diccionarios)
     compilador.agregar_variables()
     compilador.guardar_df(ruta_guardado)
-    calculador = CalculadoraEnergia()
+    calculador = CalculadoraEnergia(ruta_archivo_modelos)
     calculador.leer_df_compilados(compilador.entregar_df_compilados())
     calculador.obtener_proyeccion_completa(direccion_datos_historicos)
     calculador.guardar_proyecciones(ruta_guardado)
