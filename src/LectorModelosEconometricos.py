@@ -55,18 +55,21 @@ class LectorModelosEconometricos:
             except ValueError:
                 logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene efectos fijos mensuales '
                                f'(opcional)')
-
-            dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
-            for variable, coeficiente in dict_coeficientes.items():
-                df_proyeccion_modelo[f'Coef_{variable}'] = coeficiente
-            try:
-                dict_coeficientes_cuadrado = self._obtener_coeficientes_cuadrado(modelo, subsector)
-                for variable, coeficiente in dict_coeficientes_cuadrado.items():
-                    df_proyeccion_modelo[f'Coef2_{variable}'] = coeficiente
-            except ValueError:
-                logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de coeficientes con '
-                               f'variables al cuadrado ('
-                               f'opcional)')
+            if resolucion_coef == 'Nacional':
+                dict_coeficientes = self._obtener_coeficientes(modelo, subsector)
+                for variable, coeficiente in dict_coeficientes.items():
+                    df_proyeccion_modelo[f'Coef_{variable}'] = coeficiente
+                try:
+                    dict_coeficientes_cuadrado = self._obtener_coeficientes_cuadrado(modelo, subsector)
+                    for variable, coeficiente in dict_coeficientes_cuadrado.items():
+                        df_proyeccion_modelo[f'Coef2_{variable}'] = coeficiente
+                except ValueError:
+                    logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de coeficientes con '
+                                   f'variables al cuadrado ('
+                                   f'opcional)')
+            else:
+                df_coeficientes = self._obtener_coeficientes_diferenciados(modelo, subsector, resolucion_coef)
+                df_proyeccion_modelo = df_proyeccion_modelo.merge(df_coeficientes, on=[resolucion_coef])
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos
 
@@ -179,6 +182,26 @@ class LectorModelosEconometricos:
         df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
         dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
         return dict_coeficientes
+
+    def _obtener_coeficientes_diferenciados(self, modelo: int, subsector: str, resolucion_coef: str) -> pd.DataFrame:
+        """
+        Metodo que extrae los coeficientes de las variables explicativas en un diccionario
+        :param modelo: indice de modelo seleccionado
+        :param subsector: subsector economico
+        :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
+        """
+        nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES}_{subsector}_{modelo}'
+        df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
+        df_coeficientes.set_index(['Variable'], inplace=True)
+        df_coeficientes = df_coeficientes.transpose()
+        df_coeficientes.reset_index(inplace=True)
+        for nombre_columna in df_coeficientes.columns:
+            if nombre_columna == 'index':
+                continue
+            else:
+                df_coeficientes.rename(columns={nombre_columna: f'Coef_{nombre_columna}'},inplace=True)
+        df_coeficientes.rename(columns={'index': resolucion_coef}, inplace=True)
+        return df_coeficientes
 
     def _obtener_coeficientes_cuadrado(self, modelo: int, subsector: str) -> dict[float]:
         """
