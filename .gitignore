@@ -5,6 +5,7 @@
 # Ignore files
 *.xlsx
 *.csv
+*.zip
 
 
 # Byte-compiled / optimized / DLL files
