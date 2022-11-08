@@ -25,7 +25,9 @@ DICCIONARIO_TIPO_VARIABLE = {
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
     'ProduccionCU': 'Empresa',
-    'OCED6': 'Nacional'
+    'OCED6': 'Nacional',
+    'EficienciaCU': 'Nacional',
+    'ProcesadoCU': 'Nacional'
 }
 
 # Nombre Datos
