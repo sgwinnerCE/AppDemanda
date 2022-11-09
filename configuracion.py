@@ -27,7 +27,7 @@ DICCIONARIO_TIPO_VARIABLE = {
     'ProduccionCU': 'Empresa',
     'OCED6': 'Nacional',
     'EficienciaCU': 'Nacional',
-    'ProcesadoCU': 'Nacional'
+    'ProcesadoCU': 'Empresa'
 }
 
 # Nombre Datos
