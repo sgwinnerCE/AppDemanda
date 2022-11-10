@@ -88,20 +88,20 @@ class CalculadoraEnergia:
         Funcion que adjunta datos historicos a las proyecciones, manteniendo resolucion de proyeccion
         :param direccion_datos_historicos:
         """
-        df_historico_escenarios = pd.DataFrame()
         for subsector, df_subsector in self.df_proyecciones.items():
+            df_historico_escenarios = pd.DataFrame()
             direccion_archivo = os.sep.join([direccion_datos_historicos, f'{subsector}.csv'])
-            logger.info(f'Anexando datos historicos para el subsector {subsector} desde {direccion_archivo}')
+
             df_historico = pd.read_csv(direccion_archivo)
             lista_escenarios = self.df_proyecciones[subsector]['Escenario'].unique()
             for escenario in lista_escenarios:
+                logger.info(f'Anexando datos historicos para el subsector {subsector}, escenario {escenario} '
+                            f'desde {direccion_archivo}')
                 df_historico['Escenario'] = escenario
-                # if df_historico_escenarios.empty:
-                #     df_historico_escenarios = df_historico
-                # else:
                 df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
             self.df_proyecciones[subsector] = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
             self.df_proyecciones[subsector].dropna(axis=1, inplace=True)
+            self.df_proyecciones[subsector]['Sector Económico'] = subsector
 
     def desagrupar_retiros(self):
         """
@@ -135,8 +135,10 @@ class CalculadoraEnergia:
             df_subsector.to_csv(archivo_guardado, encoding='latin-1', index=False)
 
     def guardar_proyeccion_compilada(self, ruta_guardado):
+        df_compilado = pd.DataFrame()
         for subsector, df_subsector in self.df_proyecciones.items():
-            archivo_guardado = os.sep.join([ruta_guardado, f'{subsector}_proyecciones.csv'])
-            logger.info(f'Guardando proyeccion de subsector {subsector} en {archivo_guardado}')
-            df_subsector.to_csv(archivo_guardado, encoding='latin-1', index=False)
-            print('test')
+            archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
+            df_compilado = pd.concat([df_compilado, df_subsector], ignore_index=True)
+        logger.info(f'Guardando proyecciones en {archivo_guardado}')
+        df_compilado.to_csv(archivo_guardado, encoding='latin-1', index=False)
+        print('test')
