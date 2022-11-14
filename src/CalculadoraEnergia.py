@@ -155,5 +155,5 @@ class CalculadoraEnergia:
         df_compilado['Tipo de Cliente'] = df_compilado['Sector Económico']
         df_compilado.replace({'Tipo de Cliente': DICC_TIPO}, inplace=True)
 
-        df_compilado.to_csv(archivo_guardado, encoding='latin-1', index=False)
+        df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
         print('test')
