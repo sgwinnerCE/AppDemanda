@@ -16,7 +16,7 @@ class CalculadoraEnergia:
     Clase procesa los dataframes compilados y calcula la proyeccion de energia para cada subsector
     """
 
-    def __init__(self, ruta_archivo_modelos=str):
+    def __init__(self, ruta_archivo_modelos: str):
         self.ruta_modelos = ruta_archivo_modelos
         self.df_proyecciones = None
         self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos)
@@ -117,31 +117,45 @@ class CalculadoraEnergia:
                 continue
             else:
                 logger.info(f'Desagrupando retiros del subsector {subsector} de {resolucion_modelo} a barras.')
-                df_desagrupacion = pd.read_excel(self.ruta_modelos, sheet_name=f'{PREFIJO_DESAGRUPACION}_{resolucion_modelo}',
+                df_desagrupacion = pd.read_excel(self.ruta_modelos,
+                                                 sheet_name=f'{PREFIJO_DESAGRUPACION}_{resolucion_modelo}',
                                                  usecols=[resolucion_modelo, 'Barra', subsector])
-                self.df_proyecciones[subsector] = self.df_proyecciones[subsector].merge(df_desagrupacion, on=[resolucion_modelo])
-                self.df_proyecciones[subsector][ENERGIA] = self.df_proyecciones[subsector][ENERGIA]*self.df_proyecciones[subsector][subsector]
+                self.df_proyecciones[subsector] = self.df_proyecciones[subsector].merge(df_desagrupacion,
+                                                                                        on=[resolucion_modelo])
+                self.df_proyecciones[subsector][ENERGIA] = self.df_proyecciones[subsector][ENERGIA] * \
+                                                           self.df_proyecciones[subsector][subsector]
                 self.df_proyecciones[subsector].drop(labels=[subsector], axis=1, inplace=True)
 
-
-    def obtener_proyeccion_completa(self, direccion_datos_historicos):
+    def obtener_proyeccion_completa(self, direccion_datos_historicos: str) -> None:
+        """
+        Funcion para armar el archivo de proyeccion completo para cada subsector
+        :param direccion_datos_historicos: ruta de datos historicos
+        """
         self.calcular_proyeccion_energia()
         self.desagrupar_retiros()
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
-    def guardar_proyecciones(self, ruta_guardado):
+    def guardar_proyecciones(self, ruta_guardado: str) -> None:
+        """
+        Metodo que guarda prediccion en archivos csv para cada subsector
+        :param ruta_guardado: ruta donde guardar archivos
+        """
         for subsector, df_subsector in self.df_proyecciones.items():
             archivo_guardado = os.sep.join([ruta_guardado, f'{subsector}_proyecciones.csv'])
             logger.info(f'Guardando proyeccion de subsector {subsector} en {archivo_guardado}')
-            df_subsector.to_csv(archivo_guardado, encoding='latin-1', index=False)
+            df_subsector.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
-    def guardar_proyeccion_compilada(self, ruta_guardado, ruta_diccionarios):
+    def guardar_proyeccion_compilada(self, ruta_guardado: str, ruta_diccionarios: str) -> None:
+        """
+        Metodo para guardar proyeccion completa con el formato adecuado para lectura de visualizador.
+        :param ruta_guardado: ruta donde guardar el archivo
+        :param ruta_diccionarios: ruta donde se encuentra el diccionario para asignar comuna y region a cada barra.
+        """
         df_compilado = pd.DataFrame()
-        for subsector, df_subsector in self.df_proyecciones.items():
-            archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
-            df_compilado = pd.concat([df_compilado, df_subsector], ignore_index=True)
+        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
         logger.info(f'Guardando proyecciones en {archivo_guardado}')
-
+        for subsector, df_subsector in self.df_proyecciones.items():
+            df_compilado = pd.concat([df_compilado, df_subsector], ignore_index=True)
         dicc_comuna = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Comuna', header=None)
         dicc_comuna.rename(columns={0: 'Barra', 1: 'Comuna'}, inplace=True)
         dicc_region = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Region', header=None)
@@ -149,11 +163,7 @@ class CalculadoraEnergia:
         df_compilado.drop(labels=['Comuna', 'Region'], axis=1, inplace=True, errors='ignore')
         df_compilado = pd.merge(df_compilado, dicc_comuna, on=['Barra'], how='left')
         df_compilado = pd.merge(df_compilado, dicc_region, on=['Barra'], how='left')
-
         df_compilado.replace({'Mes': DICC_MESES}, inplace=True)
-
         df_compilado['Tipo de Cliente'] = df_compilado['Sector Económico']
         df_compilado.replace({'Tipo de Cliente': DICC_TIPO}, inplace=True)
-
         df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
-        print('test')
