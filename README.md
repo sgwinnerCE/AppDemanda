@@ -19,7 +19,5 @@ Aplicacion desarrollada en Python 3.10
 ## TO DOs
 
 - Procesar variables y efectos fijos con distintos valores para cada elemento. Ej: Elasticidades diferenciadas por region.
-- Asignacion en barras de retiro para modelos con resolucion distinta a nivel de barras.
-- Compilacion de resultados en archivo unico.
 - Graficos de resultados.
 - Incluir datos de encuestas.
