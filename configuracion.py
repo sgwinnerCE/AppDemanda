@@ -54,4 +54,5 @@ DICC_TIPO = {
     'Cobre': 'LIBRE'
 }
 
+TASA_MAXIMA = 0.05
 

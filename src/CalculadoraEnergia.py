@@ -135,6 +135,41 @@ class CalculadoraEnergia:
         self.desagrupar_retiros()
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
+    def ajuste_historico_proyectado(self, df_compilado):
+        lista_subsectores = df_compilado['Sector Económico'].unique()
+        lista_escenarios = df_compilado['Escenario'].unique()
+        for subsector in lista_subsectores:
+            lista_barras = df_compilado.loc[(df_compilado['Sector Económico'] == subsector), 'Barra'].unique()
+            for barra in lista_barras:
+                for escenario in lista_escenarios:
+                    energia_historica = df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
+                                                         (df_compilado['Escenario'] == escenario)
+                                                         & (df_compilado['Barra'] == barra) &
+                                                         (df_compilado['Año'] == (AGNO_INICIAL - 1)) &
+                                                         (df_compilado['Mes'].isin((10, 11, 12)))][ENERGIA].sum()
+                    energia_proyectada = df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
+                                                          (df_compilado['Escenario'] == escenario)
+                                                          & (df_compilado['Barra'] == barra) &
+                                                          (df_compilado['Año'] == AGNO_INICIAL) &
+                                                          (df_compilado['Mes'].isin((1, 2, 3)))][ENERGIA].sum()
+                    if energia_proyectada == 0 or energia_historica == 0:
+                        continue
+                    tasa = energia_proyectada / energia_historica - 1
+                    if tasa < -1 * TASA_MAXIMA:
+                        logger.debug(f'Ajustando tasa de {barra} subsector {subsector} con tasa {tasa}')
+                        multiplicador = energia_historica * (-1 * TASA_MAXIMA + 1) / energia_proyectada
+                        df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
+                                         (df_compilado['Escenario'] == escenario)
+                                         & (df_compilado['Barra'] == barra) & (
+                                                     df_compilado['Año'] >= (AGNO_INICIAL)), ENERGIA] *= multiplicador
+                    elif tasa > TASA_MAXIMA:
+                        logger.debug(f'Ajustando tasa de {barra} subsector {subsector} con tasa {tasa}')
+                        multiplicador = energia_historica * (TASA_MAXIMA + 1) / energia_proyectada
+                        df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
+                                         (df_compilado['Escenario'] == escenario)
+                                         & (df_compilado['Barra'] == barra) & (
+                                                     df_compilado['Año'] >= (AGNO_INICIAL)), ENERGIA] *= multiplicador
+
     def guardar_proyecciones(self, ruta_guardado: str) -> None:
         """
         Metodo que guarda prediccion en archivos csv para cada subsector
@@ -161,6 +196,7 @@ class CalculadoraEnergia:
         dicc_region = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Region', header=None)
         dicc_region.rename(columns={0: 'Barra', 1: 'Región'}, inplace=True)
         df_compilado.drop(labels=['Comuna', 'Region'], axis=1, inplace=True, errors='ignore')
+        self.ajuste_historico_proyectado(df_compilado)
         df_compilado = pd.merge(df_compilado, dicc_comuna, on=['Barra'], how='left')
         df_compilado = pd.merge(df_compilado, dicc_region, on=['Barra'], how='left')
         df_compilado.replace({'Mes': DICC_MESES}, inplace=True)
