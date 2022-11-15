@@ -25,8 +25,33 @@ DICCIONARIO_TIPO_VARIABLE = {
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
     'ProduccionCU': 'Empresa',
-    'OCED6': 'Nacional'
+    'OCED6': 'Nacional',
+    'EficienciaCU': 'Nacional',
+    'ProcesadoCU': 'Empresa'
 }
 
 # Nombre Datos
 ENERGIA = 'Demanda'
+
+# Diccionario para pasar meses de numoro a plabra
+DICC_MESES = {
+    1: 'ENE',
+    2: 'FEB',
+    3: 'MAR',
+    4: 'ABR',
+    5: 'MAY',
+    6: 'JUN',
+    7: 'JUL',
+    8: 'AGO',
+    9: 'SEP',
+    10: 'OCT',
+    11: 'NOV',
+    12: 'DIC'
+}
+
+DICC_TIPO = {
+    'ReguladosLD': 'AMBOS',
+    'Cobre': 'LIBRE'
+}
+
+

@@ -39,6 +39,7 @@ def main():
     calculador.leer_df_compilados(compilador.entregar_df_compilados())
     calculador.obtener_proyeccion_completa(direccion_datos_historicos)
     calculador.guardar_proyecciones(ruta_guardado)
+    calculador.guardar_proyeccion_compilada(ruta_guardado, ruta_archivo_diccionarios)
     logger.info(f'Ejecucion finalizada en {round(time.time()-start_time,2)} segundos')
 
 
