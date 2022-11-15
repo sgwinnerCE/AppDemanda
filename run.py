@@ -26,7 +26,7 @@ logger.addHandler(ch)
 def main():
     start_time = time.time()
 
-    logger.info('Iniciando ejecucion de AppDemandaElectrica v0.2')
+    logger.info('Iniciando ejecucion de AppDemandaElectrica v0.3')
     ruta_archivo_modelos = os.sep.join(['input', 'Modelos.xlsx'])
     ruta_archivo_diccionarios = os.sep.join(['input', 'Diccionarios.xlsx'])
     ruta_archivo_escenarios = os.sep.join(['input', 'Escenarios'])
