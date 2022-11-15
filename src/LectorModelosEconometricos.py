@@ -35,7 +35,7 @@ class LectorModelosEconometricos:
         """
         return self.modelos_escogidos
 
-    def armar_df_proyecciones(self) -> dict[pd.DataFrame]:
+    def armar_df_proyecciones(self) -> dict[str, pd.DataFrame]:
         """
         Metodo para armar el dataframe que sera usado como base para realizar las proyecciones
         :return: entrega un diccionario con un dataframe para cada subsector economico
