@@ -55,7 +55,8 @@ DICC_TIPO = {
     'ReguladosLD': 'AMBOS',
     'Cobre': 'LIBRE',
     'Acero': 'LIBRE',
-    'Cemento': 'LIBRE'
+    'Cemento': 'LIBRE',
+    'IndustriasVarias': 'LIBRE'
 }
 
 
