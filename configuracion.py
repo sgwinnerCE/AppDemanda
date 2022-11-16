@@ -1,7 +1,10 @@
-# Configuracion tempral
+# Configuracion temporal
 AGNO_INICIAL = 2022
 AGNO_FINAL = 2041
 MESES = 12
+
+#Flag si se quiere ajustar proyeccion a ultimo dato historico
+AJUSTE = True
 
 # Deficion Nombres en Hojas Modelos
 
@@ -29,7 +32,8 @@ DICCIONARIO_TIPO_VARIABLE = {
     'EficienciaCU': 'Nacional',
     'ProcesadoCU': 'Empresa',
     'ProduccionAcero': 'Nacional',
-    'ProduccionCemento': 'Nacional'
+    'ProduccionCemento': 'Nacional',
+    'ProduccionHierro': 'Nacional'
 }
 
 # Nombre Datos
@@ -56,7 +60,8 @@ DICC_TIPO = {
     'Cobre': 'LIBRE',
     'Acero': 'LIBRE',
     'Cemento': 'LIBRE',
-    'IndustriasVarias': 'LIBRE'
+    'IndustriasVarias': 'LIBRE',
+    'Hierro': 'LIBRE'
 }
 
 TASA_MAXIMA = 0.05

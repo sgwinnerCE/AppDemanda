@@ -207,7 +207,9 @@ class CalculadoraEnergia:
         dicc_region = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Region', header=None)
         dicc_region.rename(columns={0: 'Barra', 1: 'Región'}, inplace=True)
         df_compilado.drop(labels=['Comuna', 'Region'], axis=1, inplace=True, errors='ignore')
-        self.ajuste_historico_proyectado(df_compilado)
+        df_compilado = df_compilado.astype({ENERGIA: 'float'})
+        if AJUSTE:
+            self.ajuste_historico_proyectado(df_compilado)
         df_compilado = pd.merge(df_compilado, dicc_comuna, on=['Barra'], how='left')
         df_compilado = pd.merge(df_compilado, dicc_region, on=['Barra'], how='left')
         df_compilado.replace({'Mes': DICC_MESES}, inplace=True)
