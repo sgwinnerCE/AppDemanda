@@ -27,7 +27,9 @@ DICCIONARIO_TIPO_VARIABLE = {
     'ProduccionCU': 'Empresa',
     'OCED6': 'Nacional',
     'EficienciaCU': 'Nacional',
-    'ProcesadoCU': 'Empresa'
+    'ProcesadoCU': 'Empresa',
+    'ProduccionAcero': 'Nacional',
+    'ProduccionCemento': 'Nacional'
 }
 
 # Nombre Datos
@@ -51,7 +53,9 @@ DICC_MESES = {
 
 DICC_TIPO = {
     'ReguladosLD': 'AMBOS',
-    'Cobre': 'LIBRE'
+    'Cobre': 'LIBRE',
+    'Acero': 'LIBRE',
+    'Cemento': 'LIBRE'
 }
 
 
