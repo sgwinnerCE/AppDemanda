@@ -130,12 +130,16 @@ class LectorModelosEconometricos:
         df_efectos_fijos = pd.read_excel(self.archivo_excel,
                                          sheet_name=nombre_hoja)
         constante = df_efectos_fijos.loc[(df_efectos_fijos['Indice'] == 'Constante'), 'Total'].item()
-        df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos.Indice == 'Constante'].index, inplace=True)
-        df_efectos_fijos.rename(columns={'Indice': resolucion_ef, 'Total': 'Efecto_Fijo'}, inplace=True)
+        if resolucion_ef == 'Nacional':
+            df_efectos_fijos['Efecto_Fijo'] = constante
+            df_efectos_fijos.drop(columns=['Indice','Total'],inplace=True)
+        else:
+            df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos.Indice == 'Constante'].index, inplace=True)
+            df_efectos_fijos.rename(columns={'Indice': resolucion_ef, 'Total': 'Efecto_Fijo'}, inplace=True)
 
-        self._filtrar_elementos(df_efectos_fijos, resolucion_ef, subsector)
+            self._filtrar_elementos(df_efectos_fijos, resolucion_ef, subsector)
 
-        df_efectos_fijos['Efecto_Fijo'] = df_efectos_fijos['Efecto_Fijo'] + constante
+            df_efectos_fijos['Efecto_Fijo'] = df_efectos_fijos['Efecto_Fijo'] + constante
         df_efectos_fijos.reset_index(drop=True, inplace=True)
         return df_efectos_fijos
 
