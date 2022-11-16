@@ -115,6 +115,16 @@ class CalculadoraEnergia:
 
             if resolucion_modelo == 'Barra':
                 continue
+            elif resolucion_modelo == 'Nacional':
+                logger.info(f'Desagrupando retiros del subsector {subsector} de {resolucion_modelo} a barras.')
+                df_desagrupacion = pd.read_excel(self.ruta_modelos,
+                                                 sheet_name=f'{PREFIJO_DESAGRUPACION}_{resolucion_modelo}',
+                                                 usecols=['Barra', subsector])
+                self.df_proyecciones[subsector] = self.df_proyecciones[subsector].join(df_desagrupacion, how='cross')
+                self.df_proyecciones[subsector][ENERGIA] = self.df_proyecciones[subsector][ENERGIA] * \
+                                                           self.df_proyecciones[subsector][subsector]
+                self.df_proyecciones[subsector].drop(labels=[subsector], axis=1, inplace=True)
+
             else:
                 logger.info(f'Desagrupando retiros del subsector {subsector} de {resolucion_modelo} a barras.')
                 df_desagrupacion = pd.read_excel(self.ruta_modelos,
