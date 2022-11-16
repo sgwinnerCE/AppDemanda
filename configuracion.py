@@ -59,4 +59,5 @@ DICC_TIPO = {
     'IndustriasVarias': 'LIBRE'
 }
 
+TASA_MAXIMA = 0.05
 
