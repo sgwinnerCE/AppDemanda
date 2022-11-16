@@ -135,7 +135,8 @@ class CalculadoraEnergia:
         self.desagrupar_retiros()
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
-    def ajuste_historico_proyectado(self, df_compilado):
+    @staticmethod
+    def ajuste_historico_proyectado(df_compilado):
         lista_subsectores = df_compilado['Sector Económico'].unique()
         lista_escenarios = df_compilado['Escenario'].unique()
         for subsector in lista_subsectores:
@@ -161,14 +162,14 @@ class CalculadoraEnergia:
                         df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
                                          (df_compilado['Escenario'] == escenario)
                                          & (df_compilado['Barra'] == barra) & (
-                                                     df_compilado['Año'] >= (AGNO_INICIAL)), ENERGIA] *= multiplicador
+                                                 df_compilado['Año'] >= AGNO_INICIAL), ENERGIA] *= multiplicador
                     elif tasa > TASA_MAXIMA:
                         logger.debug(f'Ajustando tasa de {barra} subsector {subsector} con tasa {tasa}')
                         multiplicador = energia_historica * (TASA_MAXIMA + 1) / energia_proyectada
                         df_compilado.loc[(df_compilado['Sector Económico'] == subsector) &
                                          (df_compilado['Escenario'] == escenario)
                                          & (df_compilado['Barra'] == barra) & (
-                                                     df_compilado['Año'] >= (AGNO_INICIAL)), ENERGIA] *= multiplicador
+                                                 df_compilado['Año'] >= AGNO_INICIAL), ENERGIA] *= multiplicador
 
     def guardar_proyecciones(self, ruta_guardado: str) -> None:
         """
