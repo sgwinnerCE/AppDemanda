@@ -24,6 +24,7 @@ NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
 
 DICCIONARIO_TIPO_VARIABLE = {
     'IMACEC': 'Nacional',
+    'IMACEC_Industria': 'Nacional',
     'Precio': 'Nacional',
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
@@ -33,7 +34,8 @@ DICCIONARIO_TIPO_VARIABLE = {
     'ProcesadoCU': 'Empresa',
     'ProduccionAcero': 'Nacional',
     'ProduccionCemento': 'Nacional',
-    'ProduccionHierro': 'Nacional'
+    'ProduccionHierro': 'Nacional',
+    'ProduccionCelulosa': 'Nacional'
 }
 
 # Nombre Datos
@@ -61,7 +63,8 @@ DICC_TIPO = {
     'Acero': 'LIBRE',
     'Cemento': 'LIBRE',
     'IndustriasVarias': 'LIBRE',
-    'Hierro': 'LIBRE'
+    'Hierro': 'LIBRE',
+    'Celulosa': 'LIBRE'
 }
 
 TASA_MAXIMA = 0.05
