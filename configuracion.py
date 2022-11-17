@@ -3,7 +3,7 @@ AGNO_INICIAL = 2022
 AGNO_FINAL = 2041
 MESES = 12
 
-#Flag si se quiere ajustar proyeccion a ultimo dato historico
+# Flag si se quiere ajustar proyeccion a ultimo dato historico
 AJUSTE = True
 
 # Deficion Nombres en Hojas Modelos
@@ -68,4 +68,3 @@ DICC_TIPO = {
 }
 
 TASA_MAXIMA = 0.05
-
