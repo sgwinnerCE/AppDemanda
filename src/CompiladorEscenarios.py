@@ -45,7 +45,7 @@ class CompiladorEscenarios:
                 modelo=self.modelos_escogidos[subsector], subsector=subsector)
             for columna in df_subsector.columns:
                 if columna.startswith('Coef') or columna.startswith('Coef'):
-                    variable = columna.split('_')[1]
+                    variable = columna.split('_', 1)[-1]
                     if variable in df_subsector.columns:
                         continue
 
