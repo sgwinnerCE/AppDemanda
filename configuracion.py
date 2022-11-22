@@ -58,7 +58,7 @@ DICC_MESES = {
 }
 
 DICC_TIPO = {
-    'ReguladosLD': 'AMBOS',
+    'ReguladosLD': 'REGULADOS Y LD',
     'Cobre': 'LIBRE',
     'Acero': 'LIBRE',
     'Cemento': 'LIBRE',
