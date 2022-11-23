@@ -14,7 +14,7 @@ class LectorModelosEconometricos:
     subsector que sera utilizado para realizar los calculos.
     """
 
-    def __init__(self, direccion_archivo: str) -> None:
+    def __init__(self, direccion_archivo: str, ruta_diccionarios: str) -> None:
         self.archivo_excel = pd.ExcelFile(direccion_archivo)
         df_modelos_escogidos = pd.read_excel(self.archivo_excel,
                                              sheet_name=NOMBRE_HOJA_MODELOS_ESCOGIDOS)
@@ -25,6 +25,7 @@ class LectorModelosEconometricos:
         self.agno_i = AGNO_INICIAL
         self.agno_f = AGNO_FINAL
         self.meses = MESES
+        self.excel_diccionarios = pd.ExcelFile(ruta_diccionarios)
         logger.info(f'Leyendo datos de modelos econometricos en {direccion_archivo}')
         logger.info(f'Preparando datos para proyectar entre {self.agno_i} y {self.agno_f}')
 
@@ -34,6 +35,17 @@ class LectorModelosEconometricos:
         :return: Diccionario[Subsector] -> numero escogido
         """
         return self.modelos_escogidos
+
+    def leer_diccionario(self, resolucion_1: str, resolucion_2: str) -> pd.DataFrame:
+        """
+        Funcion que lee los diccionarios para cambiar la variable de resolucion
+        :param resolucion_1: nombre de resolucion 1, por ejemplo Barra. Para pasar de Barra a Comuna
+        :param resolucion_2: nombre de resolucion 2 por ejemplo Comuna. Para pasar de Barra a Comuna
+        :return: Dataframe con diccionario con las asignaciones respectivas
+        """
+        dicc = pd.read_excel(self.excel_diccionarios, sheet_name=f'{resolucion_1}_{resolucion_2}', header=None)
+        dicc.rename(columns={0: resolucion_1, 1: resolucion_2}, inplace=True)
+        return dicc
 
     def armar_df_proyecciones(self) -> dict[str, pd.DataFrame]:
         """
@@ -69,6 +81,9 @@ class LectorModelosEconometricos:
                                    f'opcional)')
             else:
                 df_coeficientes = self._obtener_coeficientes_diferenciados(modelo, subsector, resolucion_coef)
+                if resolucion_coef not in df_proyeccion_modelo.columns:
+                    diccionario = self.leer_diccionario(resolucion_ef, resolucion_coef)
+                    df_proyeccion_modelo = pd.merge(df_proyeccion_modelo, diccionario, on=[resolucion_ef])
                 df_proyeccion_modelo = df_proyeccion_modelo.merge(df_coeficientes, on=[resolucion_coef])
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos

@@ -16,10 +16,10 @@ class CalculadoraEnergia:
     Clase procesa los dataframes compilados y calcula la proyeccion de energia para cada subsector
     """
 
-    def __init__(self, ruta_archivo_modelos: str):
+    def __init__(self, ruta_archivo_modelos: str, ruta_diccionarios: str):
         self.ruta_modelos = ruta_archivo_modelos
         self.df_proyecciones = None
-        self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos)
+        self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos, ruta_diccionarios)
         self.modelos_escogidos = self.procesador_modelos.entregar_modelos_escogidos()
 
     def leer_df_compilados(self, df_compilados: dict) -> None:

@@ -9,7 +9,8 @@ from pandas.testing import assert_frame_equal
 
 @pytest.fixture()
 def modelos_test() -> LectorModelosEconometricos:
-    procesador_modelos = LectorModelosEconometricos(os.sep.join(['test', 'test_inputs', 'Modelos_test.xlsx']))
+    procesador_modelos = LectorModelosEconometricos(os.sep.join(['test', 'test_inputs', 'Modelos_test.xlsx']),
+                                                    os.sep.join(['test', 'test_inputs', 'Diccionarios.xlsx']))
     procesador_modelos.agno_i = 2022
     procesador_modelos.agno_f = 2023
     return procesador_modelos
