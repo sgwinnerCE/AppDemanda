@@ -1,7 +1,10 @@
-# Configuracion tempral
+# Configuracion temporal
 AGNO_INICIAL = 2022
 AGNO_FINAL = 2041
 MESES = 12
+
+# Flag si se quiere ajustar proyeccion a ultimo dato historico
+AJUSTE = True
 
 # Deficion Nombres en Hojas Modelos
 
@@ -21,13 +24,18 @@ NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
 
 DICCIONARIO_TIPO_VARIABLE = {
     'IMACEC': 'Nacional',
+    'IMACEC_Industria': 'Nacional',
     'Precio': 'Nacional',
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
     'ProduccionCU': 'Empresa',
     'OCED6': 'Nacional',
     'EficienciaCU': 'Nacional',
-    'ProcesadoCU': 'Empresa'
+    'ProcesadoCU': 'Empresa',
+    'ProduccionAcero': 'Nacional',
+    'ProduccionCemento': 'Nacional',
+    'ProduccionHierro': 'Nacional',
+    'ProduccionCelulosa': 'Nacional'
 }
 
 # Nombre Datos
@@ -50,8 +58,13 @@ DICC_MESES = {
 }
 
 DICC_TIPO = {
-    'ReguladosLD': 'AMBOS',
-    'Cobre': 'LIBRE'
+    'ReguladosLD': 'REGULADOS Y LD',
+    'Cobre': 'LIBRE',
+    'Acero': 'LIBRE',
+    'Cemento': 'LIBRE',
+    'IndustriasVarias': 'LIBRE',
+    'Hierro': 'LIBRE',
+    'Celulosa': 'LIBRE'
 }
 
-
+TASA_MAXIMA = 0.05

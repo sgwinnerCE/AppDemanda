@@ -14,7 +14,7 @@ class LectorModelosEconometricos:
     subsector que sera utilizado para realizar los calculos.
     """
 
-    def __init__(self, direccion_archivo: str) -> None:
+    def __init__(self, direccion_archivo: str, ruta_diccionarios: str) -> None:
         self.archivo_excel = pd.ExcelFile(direccion_archivo)
         df_modelos_escogidos = pd.read_excel(self.archivo_excel,
                                              sheet_name=NOMBRE_HOJA_MODELOS_ESCOGIDOS)
@@ -25,6 +25,7 @@ class LectorModelosEconometricos:
         self.agno_i = AGNO_INICIAL
         self.agno_f = AGNO_FINAL
         self.meses = MESES
+        self.excel_diccionarios = pd.ExcelFile(ruta_diccionarios)
         logger.info(f'Leyendo datos de modelos econometricos en {direccion_archivo}')
         logger.info(f'Preparando datos para proyectar entre {self.agno_i} y {self.agno_f}')
 
@@ -35,7 +36,18 @@ class LectorModelosEconometricos:
         """
         return self.modelos_escogidos
 
-    def armar_df_proyecciones(self) -> dict[pd.DataFrame]:
+    def leer_diccionario(self, resolucion_1: str, resolucion_2: str) -> pd.DataFrame:
+        """
+        Funcion que lee los diccionarios para cambiar la variable de resolucion
+        :param resolucion_1: nombre de resolucion 1, por ejemplo Barra. Para pasar de Barra a Comuna
+        :param resolucion_2: nombre de resolucion 2 por ejemplo Comuna. Para pasar de Barra a Comuna
+        :return: Dataframe con diccionario con las asignaciones respectivas
+        """
+        dicc = pd.read_excel(self.excel_diccionarios, sheet_name=f'{resolucion_1}_{resolucion_2}', header=None)
+        dicc.rename(columns={0: resolucion_1, 1: resolucion_2}, inplace=True)
+        return dicc
+
+    def armar_df_proyecciones(self) -> dict[str, pd.DataFrame]:
         """
         Metodo para armar el dataframe que sera usado como base para realizar las proyecciones
         :return: entrega un diccionario con un dataframe para cada subsector economico
@@ -69,6 +81,9 @@ class LectorModelosEconometricos:
                                    f'opcional)')
             else:
                 df_coeficientes = self._obtener_coeficientes_diferenciados(modelo, subsector, resolucion_coef)
+                if resolucion_coef not in df_proyeccion_modelo.columns:
+                    diccionario = self.leer_diccionario(resolucion_ef, resolucion_coef)
+                    df_proyeccion_modelo = pd.merge(df_proyeccion_modelo, diccionario, on=[resolucion_ef])
                 df_proyeccion_modelo = df_proyeccion_modelo.merge(df_coeficientes, on=[resolucion_coef])
             diccionario_datos_modelos[subsector] = df_proyeccion_modelo
         return diccionario_datos_modelos
@@ -130,12 +145,16 @@ class LectorModelosEconometricos:
         df_efectos_fijos = pd.read_excel(self.archivo_excel,
                                          sheet_name=nombre_hoja)
         constante = df_efectos_fijos.loc[(df_efectos_fijos['Indice'] == 'Constante'), 'Total'].item()
-        df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos.Indice == 'Constante'].index, inplace=True)
-        df_efectos_fijos.rename(columns={'Indice': resolucion_ef, 'Total': 'Efecto_Fijo'}, inplace=True)
+        if resolucion_ef == 'Nacional':
+            df_efectos_fijos['Efecto_Fijo'] = constante
+            df_efectos_fijos.drop(columns=['Indice','Total'],inplace=True)
+        else:
+            df_efectos_fijos.drop(df_efectos_fijos[df_efectos_fijos.Indice == 'Constante'].index, inplace=True)
+            df_efectos_fijos.rename(columns={'Indice': resolucion_ef, 'Total': 'Efecto_Fijo'}, inplace=True)
 
-        self._filtrar_elementos(df_efectos_fijos, resolucion_ef, subsector)
+            self._filtrar_elementos(df_efectos_fijos, resolucion_ef, subsector)
 
-        df_efectos_fijos['Efecto_Fijo'] = df_efectos_fijos['Efecto_Fijo'] + constante
+            df_efectos_fijos['Efecto_Fijo'] = df_efectos_fijos['Efecto_Fijo'] + constante
         df_efectos_fijos.reset_index(drop=True, inplace=True)
         return df_efectos_fijos
 

@@ -16,7 +16,7 @@ class CompiladorEscenarios:
     """
 
     def __init__(self, ruta_archivo_modelos: str, ruta_escenarios: str, ruta_diccionarios: str) -> None:
-        self.procesador_modelos = LectorModelosEconometricos(ruta_archivo_modelos)
+        self.procesador_modelos = LectorModelosEconometricos(ruta_archivo_modelos, ruta_diccionarios)
         self.modelos_escogidos = self.procesador_modelos.entregar_modelos_escogidos()
         self.df_coeficientes = self.procesador_modelos.armar_df_proyecciones()
         self.procesador_variables = ProcesadorVariables(ruta_escenarios)
@@ -45,7 +45,7 @@ class CompiladorEscenarios:
                 modelo=self.modelos_escogidos[subsector], subsector=subsector)
             for columna in df_subsector.columns:
                 if columna.startswith('Coef') or columna.startswith('Coef'):
-                    variable = columna.split('_')[1]
+                    variable = columna.split('_', 1)[-1]
                     if variable in df_subsector.columns:
                         continue
 
