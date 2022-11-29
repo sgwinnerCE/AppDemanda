@@ -21,6 +21,7 @@ class CalculadoraEnergia:
         self.df_proyecciones = None
         self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos, ruta_diccionarios)
         self.modelos_escogidos = self.procesador_modelos.entregar_modelos_escogidos()
+        self.df_compilado = pd.DataFrame
 
     def leer_df_compilados(self, df_compilados: dict) -> None:
         """
@@ -191,6 +192,9 @@ class CalculadoraEnergia:
             logger.info(f'Guardando proyeccion de subsector {subsector} en {archivo_guardado}')
             df_subsector.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
+    def entregar_df_compilado(self):
+        return self.df_compilado
+
     def guardar_proyeccion_compilada(self, ruta_guardado: str, ruta_diccionarios: str) -> None:
         """
         Metodo para guardar proyeccion completa con el formato adecuado para lectura de visualizador.
@@ -216,5 +220,9 @@ class CalculadoraEnergia:
         df_compilado['Tipo de Cliente'] = df_compilado['Sector Económico']
         df_compilado.replace({'Tipo de Cliente': DICC_TIPO}, inplace=True)
         df_compilado = df_compilado[df_compilado[ENERGIA] != 0].dropna()
+        lista_columnas = list(df_compilado.columns)
+        lista_columnas.remove(ENERGIA)
+        df_compilado = df_compilado.groupby(lista_columnas).sum()[ENERGIA].reset_index()
+        self.df_compilado = df_compilado
 
         df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
