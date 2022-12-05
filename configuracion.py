@@ -5,7 +5,7 @@ MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
 AJUSTE = False
-USAR_ENCUESTAS = True
+USAR_ENCUESTAS = False
 
 # Deficion Nombres en Hojas Modelos
 
@@ -14,6 +14,7 @@ NOMBRE_HOJA_DETALLE_MODELOS_ESCOGIDOS = 'DetalleModelos'
 PREFIJO_EFECTOS_FIJOS = 'EF'
 PREFIJO_COEFICIENTES_VARIABLES = 'Var'
 PREFIJO_COEFICIENTES_VARIABLES_CUADRADO = 'Var2'
+PREFIJO_COEFICIENTES_REZAGOS = 'Lag'
 PREFIJO_FILTRO = 'Filtro'
 PREFIJO_EFECTOS_FIJOS_MES = 'EFMes'
 PREFIJO_DESAGRUPACION = 'Desagregacion'
@@ -26,7 +27,9 @@ NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
 DICCIONARIO_TIPO_VARIABLE = {
     'IMACEC': 'Nacional',
     'IMACEC_Industria': 'Nacional',
+    'IMACEC_Industria_L1': 'Nacional',
     'Precio': 'Nacional',
+    'Precio_L1': 'Nacional',
     'Poblacion': 'Comuna',
     'Vivienda': 'Comuna',
     'ProduccionCU': 'Empresa',
@@ -68,4 +71,4 @@ DICC_TIPO = {
     'Celulosa': 'LIBRE'
 }
 
-TASA_MAXIMA = 0.05
+TASA_MAXIMA = 0.08

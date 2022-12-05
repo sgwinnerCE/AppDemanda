@@ -79,6 +79,13 @@ class LectorModelosEconometricos:
                     logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de coeficientes con '
                                    f'variables al cuadrado ('
                                    f'opcional)')
+                try:
+                    dict_coeficientes_rezagos = self._obtener_rezagos(modelo, subsector)
+                    for variable, coeficiente in dict_coeficientes_rezagos.items():
+                        df_proyeccion_modelo[f'Lag_{variable}'] = coeficiente
+                except ValueError:
+                    logger.warning(f'Subsector {subsector} modelo numero: {modelo} no tiene datos de rezagos ('
+                                   f'opcional)')
             else:
                 df_coeficientes = self._obtener_coeficientes_diferenciados(modelo, subsector, resolucion_coef)
                 if resolucion_coef not in df_proyeccion_modelo.columns:
@@ -230,6 +237,18 @@ class LectorModelosEconometricos:
         :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
         """
         nombre_hoja = f'{PREFIJO_COEFICIENTES_VARIABLES_CUADRADO}_{subsector}_{modelo}'
+        df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
+        dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
+        return dict_coeficientes
+
+    def _obtener_rezagos(self, modelo: int, subsector: str) -> dict[float]:
+        """
+        Metodo que extrae los coeficientes de la parte autoregresiva de modelos con rezagos
+        :param modelo: indice de modelo seleccionado
+        :param subsector: subsector economico
+        :return: diccionario[Nombre de Variabloe] -> Coeficiente de Variable
+        """
+        nombre_hoja = f'{PREFIJO_COEFICIENTES_REZAGOS}_{subsector}_{modelo}'
         df_coeficientes = pd.read_excel(self.archivo_excel, sheet_name=nombre_hoja)
         dict_coeficientes = df_coeficientes.set_index('Variable').to_dict()['Coeficiente']
         return dict_coeficientes

@@ -43,7 +43,7 @@ class ProcesadoraEncuestas:
             df_encuesta.replace({'Mes': DICC_MESES}, inplace=True)
 
             self.proyeccion = pd.merge(self.proyeccion, df_encuesta, on=['Año', 'Mes', 'Barra'], how='left')
-
+            # TODO procesar datos de barras que no existen
 
             print('test')
         self.proyeccion.to_csv('test.csv')
