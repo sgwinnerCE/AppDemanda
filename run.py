@@ -2,9 +2,11 @@ import os
 import logging
 import time
 
+from configuracion import USAR_ENCUESTAS
 from src.CalculadoraEnergia import CalculadoraEnergia
 from src.CompiladorEscenarios import CompiladorEscenarios
 from src.LectorModelosEconometricos import LectorModelosEconometricos
+from src.ProcesadoraEncuestas import ProcesadoraEncuestas
 
 logger = logging.getLogger('simple_example')
 logger.setLevel(logging.DEBUG)
@@ -31,7 +33,9 @@ def main():
     ruta_archivo_diccionarios = os.sep.join(['input', 'Diccionarios.xlsx'])
     ruta_archivo_escenarios = os.sep.join(['input', 'Escenarios'])
     direccion_datos_historicos = os.sep.join(['input', 'Datos Historicos'])
+    direccion_encuestas = os.sep.join(['input', 'Encuestas.xlsx'])
     ruta_guardado = os.sep.join(['output'])
+
     compilador = CompiladorEscenarios(ruta_archivo_modelos, ruta_archivo_escenarios, ruta_archivo_diccionarios)
     compilador.agregar_variables()
     compilador.guardar_df(ruta_guardado)
@@ -40,6 +44,15 @@ def main():
     calculador.obtener_proyeccion_completa(direccion_datos_historicos)
     calculador.guardar_proyecciones(ruta_guardado)
     calculador.guardar_proyeccion_compilada(ruta_guardado, ruta_archivo_diccionarios)
+
+    if USAR_ENCUESTAS:
+        procesador_encuestas = ProcesadoraEncuestas(direccion_encuestas)
+        df_compilado = calculador.entregar_df_compilado()
+        procesador_encuestas.agregar_proyeccion(data_proyeccion=df_compilado)
+        procesador_encuestas.eliminar_proyeccion_macroeconomica()
+        procesador_encuestas.agregar_dato_encuesta(ruta_guardado)
+
+
     logger.info(f'Ejecucion finalizada en {round(time.time()-start_time,2)} segundos')
 
 

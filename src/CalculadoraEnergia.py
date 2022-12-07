@@ -11,6 +11,16 @@ from src.LectorModelosEconometricos import LectorModelosEconometricos
 logger = logging.getLogger('simple_example')
 
 
+def hay_rezagos(df: pd.DataFrame)->bool:
+    """
+    Revisa si hay coeficientes de retardos en dataframe
+    :param df: dataframe
+    :return: bool si se cumple condicion
+    """
+    lista_columnas = list(df.columns)
+    return any(item.startswith('Lag') for item in lista_columnas)
+
+
 class CalculadoraEnergia:
     """
     Clase procesa los dataframes compilados y calcula la proyeccion de energia para cada subsector
@@ -21,6 +31,7 @@ class CalculadoraEnergia:
         self.df_proyecciones = None
         self.procesador_modelos = LectorModelosEconometricos(self.ruta_modelos, ruta_diccionarios)
         self.modelos_escogidos = self.procesador_modelos.entregar_modelos_escogidos()
+        self.df_compilado = pd.DataFrame
 
     def leer_df_compilados(self, df_compilados: dict) -> None:
         """
@@ -45,7 +56,7 @@ class CalculadoraEnergia:
         result = [i[len(prefijo):] for i in lista_variables if i.startswith(prefijo)]
         return result
 
-    def calcular_proyeccion_energia(self) -> None:
+    def calcular_proyeccion_energia(self, direccion_datos_historicos: str) -> None:
         """
         Funcion que calcula los retiros de energia agregandola como columna al dataframe
         """
@@ -55,6 +66,7 @@ class CalculadoraEnergia:
             df_subsector[ENERGIA].drop_duplicates(inplace=True)
             # Calculo con elasticidades de variables explicativas
             variables = self._obtener_variables(df_subsector, 'Coef_')
+
             for variable in variables:
                 """
                 Energia = Energia + Suma(Coef * LN(Variable))
@@ -76,12 +88,32 @@ class CalculadoraEnergia:
             Energia = Energia + Efecto_Fijo 
             """
             df_subsector[ENERGIA] = df_subsector[ENERGIA] + df_subsector['Efecto_Fijo']
-            # Exponencial para obtener energia en MWh
-            """
-            
-            Energia = exp(ln(Energia))
-            """
-            df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
+
+            if hay_rezagos(df_subsector):
+                logger.info(f'Calculando demanda con rezagos para sector: {subsector}')
+                df_subsector = self.adjuntar_datos_historicos_rezagos(direccion_datos_historicos, df_subsector,
+                                                                      subsector)
+                lista_rezagos = [int(item[-1]) for item in list(df_subsector.columns) if item.startswith('Lag')]
+                for index, row in df_subsector.iterrows():
+                    agno = row['Año']
+                    if agno < AGNO_INICIAL:
+                        continue
+                    for rezago in lista_rezagos:
+                        nombre_rezago = f'Lag_L{rezago}'
+                        coef_rezago = row[nombre_rezago]
+                        energia_retardo = df_subsector.loc[index - rezago, ENERGIA]
+                        df_subsector.loc[index, ENERGIA] = df_subsector.loc[index, ENERGIA] + coef_rezago * np.log(
+                            energia_retardo)
+                    df_subsector.loc[index, ENERGIA] = np.exp(df_subsector.loc[index, ENERGIA])
+                df_subsector.dropna(axis=0, inplace=True)
+                self.df_proyecciones[subsector] = df_subsector
+            else:
+                # Exponencial para obtener energia en MWh
+                """
+    
+                Energia = exp(ln(Energia))
+                """
+                df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
 
     def adjuntar_datos_historicos(self, direccion_datos_historicos: str) -> None:
         """
@@ -103,6 +135,36 @@ class CalculadoraEnergia:
             self.df_proyecciones[subsector].dropna(axis=1, inplace=True)
             self.df_proyecciones[subsector]['Sector Económico'] = subsector
             self.df_proyecciones[subsector]['Energético'] = 'Electricidad'
+            # self.df_proyecciones.sort_values(['Año', 'Mes'], ascending=[True, True], inplace=True)
+
+    def adjuntar_datos_historicos_rezagos(self, direccion_datos_historicos: str,
+                                          df_subsector: pd.DataFrame,
+                                          subsector: str) -> pd.DataFrame:
+        """
+        Funcion que adjunta el ultimo año base para calculos de modelos con retardos
+        :param subsector: nombre de subsector
+        :param df_subsector: dataframe del subsector
+        :param direccion_datos_historicos: ruta a datos historicos
+        """
+        df_historico_escenarios = pd.DataFrame()
+        direccion_archivo = os.sep.join([direccion_datos_historicos, f'{subsector}.csv'])
+        df_historico = pd.read_csv(direccion_archivo)
+        df_historico = df_historico.loc[df_historico.Año == (AGNO_INICIAL - 1)]
+        _, resolucion_modelo = self.procesador_modelos.obtener_resolucion_modelo(
+            modelo=self.modelos_escogidos[subsector], subsector=subsector)
+        if resolucion_modelo == 'Nacional':
+            df_historico = df_historico.groupby(['Año', 'Mes']).sum()[ENERGIA].reset_index()
+        lista_escenarios = df_subsector['Escenario'].unique()
+        for escenario in lista_escenarios:
+            logger.info(f'Anexando datos historicos para el subsector {subsector}, escenario {escenario} '
+                        f'desde {direccion_archivo}')
+            df_historico['Escenario'] = escenario
+            df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
+        df_subsector = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
+        df_subsector['Sector Económico'] = subsector
+        df_subsector['Energético'] = 'Electricidad'
+        df_subsector.sort_values(['Año', 'Mes'], ascending=[True, True], inplace=True)
+        return df_subsector
 
     def desagrupar_retiros(self):
         """
@@ -141,7 +203,8 @@ class CalculadoraEnergia:
         Funcion para armar el archivo de proyeccion completo para cada subsector
         :param direccion_datos_historicos: ruta de datos historicos
         """
-        self.calcular_proyeccion_energia()
+
+        self.calcular_proyeccion_energia(direccion_datos_historicos)
         self.desagrupar_retiros()
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
@@ -191,6 +254,9 @@ class CalculadoraEnergia:
             logger.info(f'Guardando proyeccion de subsector {subsector} en {archivo_guardado}')
             df_subsector.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
+    def entregar_df_compilado(self):
+        return self.df_compilado
+
     def guardar_proyeccion_compilada(self, ruta_guardado: str, ruta_diccionarios: str) -> None:
         """
         Metodo para guardar proyeccion completa con el formato adecuado para lectura de visualizador.
@@ -216,5 +282,9 @@ class CalculadoraEnergia:
         df_compilado['Tipo de Cliente'] = df_compilado['Sector Económico']
         df_compilado.replace({'Tipo de Cliente': DICC_TIPO}, inplace=True)
         df_compilado = df_compilado[df_compilado[ENERGIA] != 0].dropna()
+        lista_columnas = list(df_compilado.columns)
+        lista_columnas.remove(ENERGIA)
+        df_compilado = df_compilado.groupby(lista_columnas).sum()[ENERGIA].reset_index()
+        self.df_compilado = df_compilado
 
         df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
