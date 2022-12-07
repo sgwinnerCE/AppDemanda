@@ -50,7 +50,8 @@ def main():
         df_compilado = calculador.entregar_df_compilado()
         procesador_encuestas.agregar_proyeccion(data_proyeccion=df_compilado)
         procesador_encuestas.eliminar_proyeccion_macroeconomica()
-        procesador_encuestas.agregar_dato_encuesta()
+        procesador_encuestas.agregar_dato_encuesta(ruta_guardado)
+
 
     logger.info(f'Ejecucion finalizada en {round(time.time()-start_time,2)} segundos')
 
