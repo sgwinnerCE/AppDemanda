@@ -4,7 +4,9 @@ AGNO_FINAL = 2041
 MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
-AJUSTE = False
+AJUSTE = True
+
+# Flag si se quiere utilizar informacion de las encuestas
 USAR_ENCUESTAS = False
 
 # Deficion Nombres en Hojas Modelos
@@ -68,7 +70,11 @@ DICC_TIPO = {
     'Cemento': 'LIBRE',
     'IndustriasVarias': 'LIBRE',
     'Hierro': 'LIBRE',
-    'Celulosa': 'LIBRE'
+    'Celulosa': 'LIBRE',
+    'Comercial': 'LIBRE',
+    'Salitre': 'LIBRE',
+    'Petroquimica': 'LIBRE',
+    'MinasVarias': 'LIBRE'
 }
 
 TASA_MAXIMA = 0.08
