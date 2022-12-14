@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 
 from configuracion import *
+import logging
+
+logger = logging.getLogger('simple_example')
 
 
 class ProcesadoraEncuestas:
@@ -20,18 +23,14 @@ class ProcesadoraEncuestas:
         for indice, fila in self.lista_empresas.iterrows():
             empresa = fila['Empresa']
             sector = fila['Sector']
-            df_desagrupar_empresa = self.df_desagrupacion.loc[self.df_desagrupacion.Empresa == empresa]
+            df_desagrupar_empresa = self.df_desagrupacion.loc[self.df_desagrupacion.Empresa == empresa].copy()
             df_desagrupar_empresa.drop('Empresa', axis=1, inplace=True)
             self.proyeccion = self.proyeccion.merge(df_desagrupar_empresa, on=['Barra'], how='left')
             self.proyeccion['Participacion'] = self.proyeccion['Participacion'].fillna(0)
-            # self.proyeccion.loc[(self.proyeccion['Sector Económico'] == sector) &
-            #                     (self.proyeccion['Año'] >= AGNO_INICIAL), [ENERGIA]] = self.proyeccion[ENERGIA] * (
-            #             1 - self.proyeccion['Participacion'])
             self.proyeccion[ENERGIA] = self.proyeccion.apply(lambda var: var[ENERGIA] * (1 - var['Participacion'])
+            # TODO Revisar
             if (var['Sector Económico'] == sector) & (var['Año'] >= AGNO_INICIAL) else var[ENERGIA], axis=1)
             self.proyeccion.drop('Participacion', axis=1, inplace=True)
-
-            print(empresa)
 
         # self.proyeccion.to_csv('test.csv')
 
@@ -40,32 +39,31 @@ class ProcesadoraEncuestas:
         for indice, fila in self.lista_empresas.iterrows():
             empresa = fila['Empresa']
             sector = fila['Sector']
+            logger.info(f'Agregando Encuesta de empresa {empresa}')
             df_encuesta = pd.read_excel(self.excel_encuestas, sheet_name=empresa)
-            df_encuesta = pd.melt(df_encuesta, id_vars=['Año', 'Mes'], var_name='Barra', value_name='Demanda Encuesta')
+            df_encuesta = pd.melt(df_encuesta, id_vars=['Año', 'Mes'], var_name='Barra', value_name='Demanda')
             df_encuesta.replace({'Mes': DICC_MESES}, inplace=True)
             barras_encuestas = list(df_encuesta['Barra'].unique())
-            barras_bbdd = list(self.proyeccion['Barra'].unique())
-            barras_nuevas = set(barras_encuestas) - set(barras_bbdd)
             escenarios = list(self.proyeccion['Escenario'].unique())
-            self.proyeccion = pd.merge(self.proyeccion, df_encuesta, on=['Año', 'Mes', 'Barra'], how='left')
-            self.proyeccion.fillna(0, inplace=True)
-            self.proyeccion[ENERGIA] = self.proyeccion[ENERGIA] + self.proyeccion['Demanda Encuesta']
-            self.proyeccion.drop(['Demanda Encuesta'], axis=1, inplace=True)
-            for barra_nueva in barras_nuevas:
-                df_barra = df_encuesta.loc[df_encuesta.Barra == barra_nueva]
-                df_barra = df_barra.rename(columns={'Demanda Encuesta': ENERGIA})
-                df_barra['Sector Económico'] = sector
-                df_barra['Tipo de Cliente'] = DICC_TIPO[sector]
-                df_barra['Energético'] = 'Electricidad'
+            for barra_nueva in barras_encuestas:
+                logger.info(f'Agregando Encuesta de empresa {empresa} para barra {barra_nueva}')
+                df_barra = df_encuesta.loc[df_encuesta.Barra == barra_nueva].copy()
+                try:
+                    comuna = list(self.proyeccion.loc[self.proyeccion.Barra == barra_nueva, 'Comuna'].unique())[0]
+                    region = list(self.proyeccion.loc[self.proyeccion.Barra == barra_nueva, 'Comuna'].unique())[0]
+                except IndexError:
+                    logger.warning(f'Barra {barra_nueva} no tiene datos historicos. Comuna y Region no identificados.')
+                    comuna = np.nan
+                    region = np.nan
+                df_barra.loc[:, 'Sector Económico'] = sector
+                df_barra.loc[:, 'Tipo de Cliente'] = DICC_TIPO[sector]
+                df_barra.loc[:, 'Energético'] = 'Electricidad'
+                df_barra.loc[:, 'Región'] = region
+                df_barra.loc[:, 'Comuna'] = comuna
                 df_barra.fillna(0, inplace=True)
                 for escenario in escenarios:
                     df_barra['Escenario'] = escenario
                     self.proyeccion = pd.concat([self.proyeccion, df_barra])
-                    print('test')
-
-
-
-            # TODO procesar datos de barras que no existen
         self.proyeccion.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
 
