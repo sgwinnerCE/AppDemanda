@@ -78,3 +78,7 @@ DICC_TIPO = {
 }
 
 TASA_MAXIMA = 0.08
+
+LISTA_AGRUPACION = [
+    'Subestacion'
+]

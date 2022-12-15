@@ -53,6 +53,7 @@ def main():
         procesador_encuestas.agregar_dato_encuesta(ruta_guardado)
         calculador.actualizar_proyeccion(procesador_encuestas.obtener_proyeccion_actualizada())
     calculador.guardar_proyeccion_compilada(ruta_guardado)
+    calculador.guardar_proyeccion_compilada_agrupada(ruta_guardado, ruta_archivo_diccionarios)
 
     logger.info(f'Ejecucion finalizada en {round(time.time() - start_time, 2)} segundos')
 

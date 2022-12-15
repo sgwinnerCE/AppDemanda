@@ -307,3 +307,22 @@ class CalculadoraEnergia:
         archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
         logger.info(f'Guardando proyecciones en {archivo_guardado}')
         self.df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
+
+    def guardar_proyeccion_compilada_agrupada(self,
+                                              ruta_guardado: str,
+                                              ruta_diccionarios: str) -> None:
+        """
+        Metodo para guardar el archivo compilado en un csv
+        :param ruta_guardado: ruta donde se guarda el archivo
+        """
+        for agrupacion in LISTA_AGRUPACION:
+            dicc_agrupacion = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_{agrupacion}', header=None)
+            dicc_agrupacion.rename(columns={0: 'Barra', 1: f'{agrupacion}'}, inplace=True)
+            df_agrupado = pd.merge(self.df_compilado, dicc_agrupacion, on=['Barra'], how='left')
+            df_agrupado.drop(['Barra'], inplace=True, axis=1)
+            columnas = df_agrupado.columns
+            columnas = set(columnas) - {f'{ENERGIA}'}
+            df_agrupado = df_agrupado.groupby(list(columnas)).sum()[ENERGIA].reset_index()
+            archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda_{agrupacion}.csv'])
+            logger.info(f'Guardando proyecciones agrupada en {archivo_guardado}')
+            df_agrupado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
