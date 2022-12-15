@@ -213,6 +213,12 @@ class CalculadoraEnergia:
 
     @staticmethod
     def ajuste_historico_proyectado(df_compilado: pd.DataFrame) -> None:
+        """
+        Metodo para ajustar valor proyectado a ultimo dato historico. Para ello se compara el ultimo trimestre historico
+        con el primer trimestre proyectado y se reajusta si la tasa de cambio supera el umbral dado por la tasa
+        en archivo configuracion.
+        :param df_compilado: dataframe compilado
+        """
         lista_subsectores = df_compilado['Sector Económico'].unique()
         lista_escenarios = df_compilado['Escenario'].unique()
         for subsector in lista_subsectores:
