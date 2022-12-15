@@ -42,6 +42,7 @@ class ProcesadoraEncuestas:
             df_encuesta = pd.read_excel(self.excel_encuestas, sheet_name=empresa)
             df_encuesta = pd.melt(df_encuesta, id_vars=['Año', 'Mes'], var_name='Barra', value_name='Demanda')
             df_encuesta.replace({'Mes': DICC_MESES}, inplace=True)
+            df_encuesta = df_encuesta[(df_encuesta['Año'] >= AGNO_INICIAL) & (df_encuesta['Año'] <= AGNO_FINAL)]
             barras_encuestas = list(df_encuesta['Barra'].unique())
             escenarios = list(self.proyeccion['Escenario'].unique())
             for barra_nueva in barras_encuestas:
