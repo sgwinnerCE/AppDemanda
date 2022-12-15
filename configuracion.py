@@ -4,10 +4,10 @@ AGNO_FINAL = 2041
 MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
-AJUSTE = True
+AJUSTE = False
 
 # Flag si se quiere utilizar informacion de las encuestas
-USAR_ENCUESTAS = False
+USAR_ENCUESTAS = True
 
 # Deficion Nombres en Hojas Modelos
 

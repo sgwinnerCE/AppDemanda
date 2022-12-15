@@ -35,7 +35,6 @@ class ProcesadoraEncuestas:
         # self.proyeccion.to_csv('test.csv')
 
     def agregar_dato_encuesta(self, ruta_guardado: str):
-        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
         for indice, fila in self.lista_empresas.iterrows():
             empresa = fila['Empresa']
             sector = fila['Sector']
@@ -50,7 +49,7 @@ class ProcesadoraEncuestas:
                 df_barra = df_encuesta.loc[df_encuesta.Barra == barra_nueva].copy()
                 try:
                     comuna = list(self.proyeccion.loc[self.proyeccion.Barra == barra_nueva, 'Comuna'].unique())[0]
-                    region = list(self.proyeccion.loc[self.proyeccion.Barra == barra_nueva, 'Comuna'].unique())[0]
+                    region = list(self.proyeccion.loc[self.proyeccion.Barra == barra_nueva, 'Región'].unique())[0]
                 except IndexError:
                     logger.warning(f'Barra {barra_nueva} no tiene datos historicos. Comuna y Region no identificados.')
                     comuna = np.nan
@@ -64,7 +63,9 @@ class ProcesadoraEncuestas:
                 for escenario in escenarios:
                     df_barra['Escenario'] = escenario
                     self.proyeccion = pd.concat([self.proyeccion, df_barra])
-        self.proyeccion.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
+
+    def obtener_proyeccion_actualizada(self):
+        return self.proyeccion
 
 
 def main():

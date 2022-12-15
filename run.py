@@ -43,7 +43,7 @@ def main():
     calculador.leer_df_compilados(compilador.entregar_df_compilados())
     calculador.obtener_proyeccion_completa(direccion_datos_historicos)
     calculador.guardar_proyecciones(ruta_guardado)
-    calculador.guardar_proyeccion_compilada(ruta_guardado, ruta_archivo_diccionarios)
+    calculador.compilar_proyecciones(ruta_archivo_diccionarios)
 
     if USAR_ENCUESTAS:
         procesador_encuestas = ProcesadoraEncuestas(direccion_encuestas)
@@ -51,9 +51,10 @@ def main():
         procesador_encuestas.agregar_proyeccion(data_proyeccion=df_compilado)
         procesador_encuestas.eliminar_proyeccion_macroeconomica()
         procesador_encuestas.agregar_dato_encuesta(ruta_guardado)
+        calculador.actualizar_proyeccion(procesador_encuestas.obtener_proyeccion_actualizada())
+    calculador.guardar_proyeccion_compilada(ruta_guardado)
 
-
-    logger.info(f'Ejecucion finalizada en {round(time.time()-start_time,2)} segundos')
+    logger.info(f'Ejecucion finalizada en {round(time.time() - start_time, 2)} segundos')
 
 
 if __name__ == '__main__':

@@ -106,7 +106,6 @@ class CalculadoraEnergia:
                             energia_retardo)
                     df_subsector.loc[index, ENERGIA] = np.exp(df_subsector.loc[index, ENERGIA])
                 df_subsector.dropna(axis=0, inplace=True)
-                self.df_proyecciones[subsector] = df_subsector
             else:
                 # Exponencial para obtener energia en MWh
                 """
@@ -114,6 +113,7 @@ class CalculadoraEnergia:
                 Energia = exp(ln(Energia))
                 """
                 df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
+            self.df_proyecciones[subsector] = df_subsector
 
     def adjuntar_datos_historicos(self, direccion_datos_historicos: str) -> None:
         """
@@ -209,7 +209,7 @@ class CalculadoraEnergia:
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
     @staticmethod
-    def ajuste_historico_proyectado(df_compilado):
+    def ajuste_historico_proyectado(df_compilado: pd.DataFrame) -> None:
         lista_subsectores = df_compilado['Sector Económico'].unique()
         lista_escenarios = df_compilado['Escenario'].unique()
         for subsector in lista_subsectores:
@@ -255,17 +255,26 @@ class CalculadoraEnergia:
             df_subsector.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
     def entregar_df_compilado(self):
+        """
+        Metodo que devuelve el dataframe compilado
+        :return: dataframe compilado
+        """
         return self.df_compilado
 
-    def guardar_proyeccion_compilada(self, ruta_guardado: str, ruta_diccionarios: str) -> None:
+    def actualizar_proyeccion(self, df_actualizado: pd.DataFrame) -> None:
         """
-        Metodo para guardar proyeccion completa con el formato adecuado para lectura de visualizador.
-        :param ruta_guardado: ruta donde guardar el archivo
+        Actualiza el dataframe compilado
+        :param df_actualizado: nuevo dataframe compilado
+        """
+        self.df_compilado = df_actualizado
+
+    def compilar_proyecciones(self, ruta_diccionarios: str) -> None:
+        """
+        Metodo para armar dataframe con todas las proyecciones, incluyendo el ajuste con datos historicos.
         :param ruta_diccionarios: ruta donde se encuentra el diccionario para asignar comuna y region a cada barra.
         """
         df_compilado = pd.DataFrame()
-        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
-        logger.info(f'Guardando proyecciones en {archivo_guardado}')
+        logger.info(f'Compilando proyecciones.')
         for subsector, df_subsector in self.df_proyecciones.items():
             df_compilado = pd.concat([df_compilado, df_subsector], ignore_index=True)
         dicc_comuna = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Comuna', header=None)
@@ -287,4 +296,11 @@ class CalculadoraEnergia:
         df_compilado = df_compilado.groupby(lista_columnas).sum()[ENERGIA].reset_index()
         self.df_compilado = df_compilado
 
-        df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
+    def guardar_proyeccion_compilada(self, ruta_guardado: str) -> None:
+        """
+        Metodo para guardar el archivo compilado en un csv
+        :param ruta_guardado: ruta donde se guarda el archivo
+        """
+        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
+        logger.info(f'Guardando proyecciones en {archivo_guardado}')
+        self.df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
