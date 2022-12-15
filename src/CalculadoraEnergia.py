@@ -313,6 +313,7 @@ class CalculadoraEnergia:
                                               ruta_diccionarios: str) -> None:
         """
         Metodo para guardar el archivo compilado en un csv
+        :param ruta_diccionarios: ruta de diccionario
         :param ruta_guardado: ruta donde se guarda el archivo
         """
         for agrupacion in LISTA_AGRUPACION:
