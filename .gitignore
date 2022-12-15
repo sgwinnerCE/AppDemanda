@@ -6,6 +6,7 @@
 *.xlsx
 *.csv
 *.zip
+*.txt
 
 
 # Byte-compiled / optimized / DLL files

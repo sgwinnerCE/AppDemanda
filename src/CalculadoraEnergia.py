@@ -106,7 +106,6 @@ class CalculadoraEnergia:
                             energia_retardo)
                     df_subsector.loc[index, ENERGIA] = np.exp(df_subsector.loc[index, ENERGIA])
                 df_subsector.dropna(axis=0, inplace=True)
-                self.df_proyecciones[subsector] = df_subsector
             else:
                 # Exponencial para obtener energia en MWh
                 """
@@ -114,6 +113,8 @@ class CalculadoraEnergia:
                 Energia = exp(ln(Energia))
                 """
                 df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
+            df_subsector['Origen'] = 'Modelo Macroeconomico'
+            self.df_proyecciones[subsector] = df_subsector
 
     def adjuntar_datos_historicos(self, direccion_datos_historicos: str) -> None:
         """
@@ -131,6 +132,7 @@ class CalculadoraEnergia:
                             f'desde {direccion_archivo}')
                 df_historico['Escenario'] = escenario
                 df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
+                df_historico_escenarios['Origen'] = 'Dato Historico'
             self.df_proyecciones[subsector] = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
             self.df_proyecciones[subsector].dropna(axis=1, inplace=True)
             self.df_proyecciones[subsector]['Sector Económico'] = subsector
@@ -160,6 +162,7 @@ class CalculadoraEnergia:
                         f'desde {direccion_archivo}')
             df_historico['Escenario'] = escenario
             df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
+        df_historico['Origen'] = 'Dato Historico'
         df_subsector = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
         df_subsector['Sector Económico'] = subsector
         df_subsector['Energético'] = 'Electricidad'
@@ -209,7 +212,13 @@ class CalculadoraEnergia:
         self.adjuntar_datos_historicos(direccion_datos_historicos)
 
     @staticmethod
-    def ajuste_historico_proyectado(df_compilado):
+    def ajuste_historico_proyectado(df_compilado: pd.DataFrame) -> None:
+        """
+        Metodo para ajustar valor proyectado a ultimo dato historico. Para ello se compara el ultimo trimestre historico
+        con el primer trimestre proyectado y se reajusta si la tasa de cambio supera el umbral dado por la tasa
+        en archivo configuracion.
+        :param df_compilado: dataframe compilado
+        """
         lista_subsectores = df_compilado['Sector Económico'].unique()
         lista_escenarios = df_compilado['Escenario'].unique()
         for subsector in lista_subsectores:
@@ -255,17 +264,26 @@ class CalculadoraEnergia:
             df_subsector.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
 
     def entregar_df_compilado(self):
+        """
+        Metodo que devuelve el dataframe compilado
+        :return: dataframe compilado
+        """
         return self.df_compilado
 
-    def guardar_proyeccion_compilada(self, ruta_guardado: str, ruta_diccionarios: str) -> None:
+    def actualizar_proyeccion(self, df_actualizado: pd.DataFrame) -> None:
         """
-        Metodo para guardar proyeccion completa con el formato adecuado para lectura de visualizador.
-        :param ruta_guardado: ruta donde guardar el archivo
+        Actualiza el dataframe compilado
+        :param df_actualizado: nuevo dataframe compilado
+        """
+        self.df_compilado = df_actualizado
+
+    def compilar_proyecciones(self, ruta_diccionarios: str) -> None:
+        """
+        Metodo para armar dataframe con todas las proyecciones, incluyendo el ajuste con datos historicos.
         :param ruta_diccionarios: ruta donde se encuentra el diccionario para asignar comuna y region a cada barra.
         """
         df_compilado = pd.DataFrame()
-        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
-        logger.info(f'Guardando proyecciones en {archivo_guardado}')
+        logger.info(f'Compilando proyecciones.')
         for subsector, df_subsector in self.df_proyecciones.items():
             df_compilado = pd.concat([df_compilado, df_subsector], ignore_index=True)
         dicc_comuna = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Comuna', header=None)
@@ -287,4 +305,31 @@ class CalculadoraEnergia:
         df_compilado = df_compilado.groupby(lista_columnas).sum()[ENERGIA].reset_index()
         self.df_compilado = df_compilado
 
-        df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
+    def guardar_proyeccion_compilada(self, ruta_guardado: str) -> None:
+        """
+        Metodo para guardar el archivo compilado en un csv
+        :param ruta_guardado: ruta donde se guarda el archivo
+        """
+        archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda.csv'])
+        logger.info(f'Guardando proyecciones en {archivo_guardado}')
+        self.df_compilado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
+
+    def guardar_proyeccion_compilada_agrupada(self,
+                                              ruta_guardado: str,
+                                              ruta_diccionarios: str) -> None:
+        """
+        Metodo para guardar el archivo compilado en un csv
+        :param ruta_diccionarios: ruta de diccionario
+        :param ruta_guardado: ruta donde se guarda el archivo
+        """
+        for agrupacion in LISTA_AGRUPACION:
+            dicc_agrupacion = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_{agrupacion}', header=None)
+            dicc_agrupacion.rename(columns={0: 'Barra', 1: f'{agrupacion}'}, inplace=True)
+            df_agrupado = pd.merge(self.df_compilado, dicc_agrupacion, on=['Barra'], how='left')
+            df_agrupado.drop(['Barra'], inplace=True, axis=1)
+            columnas = df_agrupado.columns
+            columnas = set(columnas) - {f'{ENERGIA}'}
+            df_agrupado = df_agrupado.groupby(list(columnas)).sum()[ENERGIA].reset_index()
+            archivo_guardado = os.sep.join([ruta_guardado, f'Proyeccion_Demanda_{agrupacion}.csv'])
+            logger.info(f'Guardando proyecciones agrupada en {archivo_guardado}')
+            df_agrupado.to_csv(archivo_guardado, encoding='utf-8-sig', index=False)
