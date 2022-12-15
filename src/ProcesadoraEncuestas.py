@@ -34,7 +34,7 @@ class ProcesadoraEncuestas:
 
         # self.proyeccion.to_csv('test.csv')
 
-    def agregar_dato_encuesta(self, ruta_guardado: str):
+    def agregar_dato_encuesta(self):
         for indice, fila in self.lista_empresas.iterrows():
             empresa = fila['Empresa']
             sector = fila['Sector']

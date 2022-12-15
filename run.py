@@ -50,7 +50,7 @@ def main():
         df_compilado = calculador.entregar_df_compilado()
         procesador_encuestas.agregar_proyeccion(data_proyeccion=df_compilado)
         procesador_encuestas.eliminar_proyeccion_macroeconomica()
-        procesador_encuestas.agregar_dato_encuesta(ruta_guardado)
+        procesador_encuestas.agregar_dato_encuesta()
         calculador.actualizar_proyeccion(procesador_encuestas.obtener_proyeccion_actualizada())
     calculador.guardar_proyeccion_compilada(ruta_guardado)
     calculador.guardar_proyeccion_compilada_agrupada(ruta_guardado, ruta_archivo_diccionarios)
