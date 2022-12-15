@@ -62,6 +62,7 @@ class ProcesadoraEncuestas:
                 df_barra.fillna(0, inplace=True)
                 for escenario in escenarios:
                     df_barra['Escenario'] = escenario
+                    df_barra['Origen'] = 'Encuesta'
                     self.proyeccion = pd.concat([self.proyeccion, df_barra])
 
     def obtener_proyeccion_actualizada(self):

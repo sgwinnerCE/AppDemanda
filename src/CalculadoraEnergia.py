@@ -113,6 +113,7 @@ class CalculadoraEnergia:
                 Energia = exp(ln(Energia))
                 """
                 df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
+            df_subsector['Origen'] = 'Modelo Macroeconomico'
             self.df_proyecciones[subsector] = df_subsector
 
     def adjuntar_datos_historicos(self, direccion_datos_historicos: str) -> None:
@@ -131,6 +132,7 @@ class CalculadoraEnergia:
                             f'desde {direccion_archivo}')
                 df_historico['Escenario'] = escenario
                 df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
+                df_historico_escenarios['Origen'] = 'Dato Historico'
             self.df_proyecciones[subsector] = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
             self.df_proyecciones[subsector].dropna(axis=1, inplace=True)
             self.df_proyecciones[subsector]['Sector Económico'] = subsector
@@ -160,6 +162,7 @@ class CalculadoraEnergia:
                         f'desde {direccion_archivo}')
             df_historico['Escenario'] = escenario
             df_historico_escenarios = pd.concat([df_historico_escenarios, df_historico], ignore_index=True)
+        df_historico['Origen'] = 'Dato Historico'
         df_subsector = pd.concat([df_historico_escenarios, df_subsector], ignore_index=True)
         df_subsector['Sector Económico'] = subsector
         df_subsector['Energético'] = 'Electricidad'
