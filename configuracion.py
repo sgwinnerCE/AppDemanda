@@ -4,7 +4,7 @@ AGNO_FINAL = 2041
 MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
-AJUSTE = True
+AJUSTE = False
 
 # Flag si se quiere utilizar informacion
 USAR_ENCUESTAS = True
@@ -85,3 +85,24 @@ TASA_MAXIMA = 0.08
 LISTA_AGRUPACION = [
     'Subestacion'
 ]
+
+DICC_CARPETA_DATOS = {
+    'Delta': 'ModeloUsoFinal',
+    'Electromovilidad': 'Electromovilidad',
+    'Netbilling': 'Netbilling',
+    'PMGD': 'PMGD'
+}
+
+DICC_DATOS_USOS = {
+    'Delta': 'Electricidad_barra_mes',
+    'Electromovilidad': 0,
+    'Netbilling': 0,
+    'PMGD': 0
+}
+
+DICC_ORIGEN_USOS = {
+    'Delta': 'Modelo Usos Finales',
+    'Electromovilidad': 'Proyeccion Electromovilidad',
+    'Netbilling': 'Proyeccion Netbilling',
+    'PMGD': 'Proyeccion PMGD'
+}

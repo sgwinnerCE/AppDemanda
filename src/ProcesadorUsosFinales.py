@@ -1,7 +1,9 @@
+import logging
 import os
 
 import pandas as pd
 from configuracion import *
+logger = logging.getLogger('simple_example')
 
 
 class ProcesadorUsosFinales:
@@ -17,8 +19,8 @@ class ProcesadorUsosFinales:
             escenario = row['Escenario']
             subsector = row['Subsector']
             nombre_archivo = f'{item}_{escenario}.xlsx'
-            ruta_archivo = os.sep.join([ruta_archivos_usos_finales, nombre_archivo])
-            df_uso_final = pd.read_excel(ruta_archivo, sheet_name=NOMBRE_HOJA_ELECTRIFICACION)
+            ruta_archivo = os.sep.join([ruta_archivos_usos_finales, DICC_CARPETA_DATOS[item], nombre_archivo])
+            df_uso_final = pd.read_excel(ruta_archivo, sheet_name=DICC_DATOS_USOS[item])
             df_uso_final = df_uso_final[(df_uso_final['Año'] >= AGNO_INICIAL) & (df_uso_final['Año'] <= AGNO_FINAL)]
 
             dicc_comuna = pd.read_excel(ruta_diccionarios, sheet_name=f'Barra_Comuna', header=None)
@@ -32,7 +34,9 @@ class ProcesadorUsosFinales:
             df_uso_final.replace({'Mes': DICC_MESES}, inplace=True)
             df_uso_final['Sector Económico'] = subsector
             df_uso_final['Energético'] = 'Electricidad'
-            df_uso_final['Origen'] = 'Modelo Usos Finales'
+            origen_datos = DICC_ORIGEN_USOS[item]
+            df_uso_final['Origen'] = origen_datos
+            logger.info(f'Agregando datos de {origen_datos}')
             df_uso_final['Tipo de Cliente'] = df_uso_final['Sector Económico']
             df_uso_final.replace({'Tipo de Cliente': DICC_TIPO}, inplace=True)
             self.df_usos_finales = pd.concat([self.df_usos_finales, df_uso_final], ignore_index=True)

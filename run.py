@@ -34,7 +34,7 @@ def main():
     ruta_archivo_escenarios = os.sep.join(['input', 'Escenarios'])
     direccion_datos_historicos = os.sep.join(['input', 'Datos Historicos'])
     direccion_encuestas = os.sep.join(['input', 'Encuestas.xlsx'])
-    direccion_usos_finales = os.sep.join(['input', 'ModeloUsoFinal'])
+
     ruta_guardado = os.sep.join(['output'])
 
     compilador = CompiladorEscenarios(ruta_archivo_modelos, ruta_archivo_escenarios, ruta_archivo_diccionarios)
@@ -55,6 +55,7 @@ def main():
         calculador.actualizar_proyeccion(procesador_encuestas.obtener_proyeccion_actualizada())
 
     if USAR_USOS_FINALES:
+        direccion_usos_finales = os.sep.join(['input'])
         usos_finales = ProcesadorUsosFinales(ruta_archivo_modelos)
         usos_finales.procesar_usos_finales(direccion_usos_finales, ruta_archivo_diccionarios)
         df_compilado = calculador.entregar_df_compilado()
