@@ -4,7 +4,7 @@ AGNO_FINAL = 2041
 MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
-AJUSTE = False
+AJUSTE = True
 
 # Flag si se quiere utilizar informacion
 USAR_ENCUESTAS = True
@@ -23,6 +23,7 @@ PREFIJO_EFECTOS_FIJOS_MES = 'EFMes'
 PREFIJO_DESAGRUPACION = 'Desagregacion'
 NOMBRE_HOJA_ELECTRIFICACION = 'Electricidad_barra_mes'
 NOMBRE_HOJA_USOS_FINALES = 'Configuracion_UsosFinales'
+NOMBRE_HOJA_MODELOS_INTENSIDAD = 'ModelosIntensidad'
 
 # Deficion Nombres en Hojas Modelos
 NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
@@ -77,7 +78,12 @@ DICC_TIPO = {
     'Comercial': 'LIBRE',
     'Salitre': 'LIBRE',
     'Petroquimica': 'LIBRE',
-    'MinasVarias': 'LIBRE'
+    'MinasVarias': 'LIBRE',
+    'Maritimo': 'LIBRE',
+    'Ferroviario': 'LIBRE',
+    'Electricidad': 'LIBRE',
+    'Gas Natural': 'LIBRE',
+    'Petroleo': 'LIBRE'
 }
 
 TASA_MAXIMA = 0.08

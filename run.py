@@ -5,6 +5,7 @@ import time
 from configuracion import USAR_ENCUESTAS, USAR_USOS_FINALES
 from src.CalculadoraEnergia import CalculadoraEnergia
 from src.CompiladorEscenarios import CompiladorEscenarios
+from src.ProcesadorModelosIntensidad import ModelosIntensidad
 from src.ProcesadorUsosFinales import ProcesadorUsosFinales
 from src.ProcesadoraEncuestas import ProcesadoraEncuestas
 
@@ -45,6 +46,12 @@ def main():
     calculador.obtener_proyeccion_completa(direccion_datos_historicos)
     calculador.guardar_proyecciones(ruta_guardado)
     calculador.compilar_proyecciones(ruta_archivo_diccionarios)
+
+    modelos_intensidad = ModelosIntensidad(ruta_archivo_modelos, ruta_archivo_escenarios, direccion_datos_historicos, ruta_archivo_diccionarios)
+    modelos_intensidad.calcular_proyecciones()
+    df_compilado = calculador.entregar_df_compilado()
+    df_compilado = modelos_intensidad.agregar_proyeccion_modelo_intensidad(df_compilado)
+    calculador.actualizar_proyeccion(df_compilado)
 
     if USAR_ENCUESTAS:
         procesador_encuestas = ProcesadoraEncuestas(direccion_encuestas)
