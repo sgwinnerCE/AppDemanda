@@ -36,6 +36,7 @@ class ModelosIntensidad:
             subsector = fila['Subsector']
             intensidad = fila['Intensidad']
             variable = fila['Variable']
+            logger.info(f'Proyectando subsector {subsector} utilizando modelo de intensidad.')
 
             ruta_dato_historico = os.sep.join([self.direccion_datos_historicos, f'{subsector}.csv'])
             df_historico = pd.read_csv(ruta_dato_historico)
