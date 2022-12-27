@@ -23,6 +23,7 @@ class ProcesadoraEncuestas:
         for indice, fila in self.lista_empresas.iterrows():
             empresa = fila['Empresa']
             sector = fila['Sector']
+            logger.info(f'Eliminando proyeccion econometrica para {empresa}')
             df_desagrupar_empresa = self.df_desagrupacion.loc[self.df_desagrupacion.Empresa == empresa].copy()
             df_desagrupar_empresa.drop('Empresa', axis=1, inplace=True)
             self.proyeccion = self.proyeccion.merge(df_desagrupar_empresa, on=['Barra'], how='left')
