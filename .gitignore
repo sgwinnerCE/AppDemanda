@@ -7,6 +7,7 @@
 *.csv
 *.zip
 *.txt
+*.xlsm
 
 
 # Byte-compiled / optimized / DLL files

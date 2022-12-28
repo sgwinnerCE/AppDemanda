@@ -4,12 +4,13 @@ AGNO_FINAL = 2041
 MESES = 12
 
 # Flag si se quiere ajustar proyeccion a ultimo dato historico
-AJUSTE = False
+AJUSTE = True
 
-# Flag si se quiere utilizar informacion de las encuestas
+# Flag si se quiere utilizar informacion
 USAR_ENCUESTAS = True
+USAR_USOS_FINALES = True
 
-# Deficion Nombres en Hojas Modelos
+# Deficion Nombres
 
 NOMBRE_HOJA_MODELOS_ESCOGIDOS = 'Configuracion'
 NOMBRE_HOJA_DETALLE_MODELOS_ESCOGIDOS = 'DetalleModelos'
@@ -20,6 +21,9 @@ PREFIJO_COEFICIENTES_REZAGOS = 'Lag'
 PREFIJO_FILTRO = 'Filtro'
 PREFIJO_EFECTOS_FIJOS_MES = 'EFMes'
 PREFIJO_DESAGRUPACION = 'Desagregacion'
+NOMBRE_HOJA_ELECTRIFICACION = 'Electricidad_barra_mes'
+NOMBRE_HOJA_USOS_FINALES = 'Configuracion_UsosFinales'
+NOMBRE_HOJA_MODELOS_INTENSIDAD = 'ModelosIntensidad'
 
 # Deficion Nombres en Hojas Modelos
 NOMBRE_HOJA_VARIABLES_NACIONALES = 'VarMensuales'
@@ -74,7 +78,12 @@ DICC_TIPO = {
     'Comercial': 'LIBRE',
     'Salitre': 'LIBRE',
     'Petroquimica': 'LIBRE',
-    'MinasVarias': 'LIBRE'
+    'MinasVarias': 'LIBRE',
+    'Maritimo': 'LIBRE',
+    'Ferroviario': 'LIBRE',
+    'Electricidad': 'LIBRE',
+    'Gas Natural': 'LIBRE',
+    'Petroleo': 'LIBRE'
 }
 
 TASA_MAXIMA = 0.08
@@ -82,3 +91,24 @@ TASA_MAXIMA = 0.08
 LISTA_AGRUPACION = [
     'Subestacion'
 ]
+
+DICC_CARPETA_DATOS = {
+    'Delta': 'ModeloUsoFinal',
+    'Electromovilidad': 'Electromovilidad',
+    'Netbilling': 'Netbilling',
+    'PMGD': 'PMGD'
+}
+
+DICC_DATOS_USOS = {
+    'Delta': 'Electricidad_barra_mes',
+    'Electromovilidad': 0,
+    'Netbilling': 0,
+    'PMGD': 0
+}
+
+DICC_ORIGEN_USOS = {
+    'Delta': 'Modelo Usos Finales',
+    'Electromovilidad': 'Proyeccion Electromovilidad',
+    'Netbilling': 'Proyeccion Netbilling',
+    'PMGD': 'Proyeccion PMGD'
+}

@@ -113,7 +113,7 @@ class CalculadoraEnergia:
                 Energia = exp(ln(Energia))
                 """
                 df_subsector[ENERGIA] = np.exp(df_subsector[ENERGIA])
-            df_subsector['Origen'] = 'Modelo Macroeconomico'
+            df_subsector['Origen'] = 'Modelo Econometrico'
             self.df_proyecciones[subsector] = df_subsector
 
     def adjuntar_datos_historicos(self, direccion_datos_historicos: str) -> None:
